@@ -1,0 +1,156 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{authblk}
+
+\title{Discriminator Ladder Learning: Automatic Semantic Routing \\ for Structured Data Retrieval}
+
+\author{[Your Name]}
+\affil{Independent Researcher}
+
+\date{April 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We present \textit{Discriminator Ladder Learning}, a method that automatically discovers hierarchical routing structures for structured data retrieval. Given a dataset of structured records and a set of identity fields, the method infers a ranked sequence of discriminator fields---a \textit{ladder}---that progressively resolves retrieval ambiguity from coarse neighborhood narrowing to fine-grained tie-breaking. We implement this method in a standalone routing engine called Database Whisper and evaluate it on three public datasets spanning oncology (CIViC, 4{,}666 records), meteorology (NOAA Storm Events, 75{,}593 records), and pharmacovigilance (FDA FAERS, 200{,}000 records). The method discovers a different optimal ladder for each domain without supervision, achieving retrieval speedups of 3{,}446$\times$ to 29{,}808$\times$ over flat scan with 99.6--100\% accuracy and near-zero confusion. The procedure is domain-agnostic: the same algorithm produces different routing hierarchies for different data, each tailored to the dataset's own ambiguity structure.
+\end{abstract}
+
+\section{Introduction}
+
+Retrieving the correct record from a structured dataset is trivial when each record has a unique key. The problem becomes harder when multiple records share the same identity neighborhood---the same primary lookup fields---but differ on secondary attributes. In such cases, flat scanning produces ambiguous candidate sets, leading to confusion errors (returning the wrong record) or requiring expensive post-filtering.
+
+This situation is common in practice. In clinical knowledgebases, the same gene-variant-disease triple may have multiple evidence records differing by therapy, evidence level, or direction. In weather databases, the same state-event pair may have thousands of entries differing by county, month, or source. In adverse event reporting, the same drug-reaction pair may appear hundreds of times with different administration routes, patient demographics, or dose forms.
+
+We observe that these ambiguous neighborhoods have internal structure: some secondary fields are much better at resolving ambiguity than others, and the best field for coarse partitioning is often different from the best field for final disambiguation. This motivates a \textit{staged routing} approach in which queries are routed through a hierarchy of progressively finer discriminators rather than matched against all candidates at once.
+
+We formalize this observation as \textit{Discriminator Ladder Learning}: a greedy procedure that ranks candidate fields by their marginal ambiguity reduction, producing an ordered ladder that can be used as a hierarchical index for fast, accurate retrieval.
+
+\subsection{From Location Routing to Meaning Routing}
+
+The conceptual motivation for this work comes from an analogy with network routing. In IP networking, a hierarchical address encodes \textit{location}: network, subnet, host. Routers do not inspect packet contents; they narrow by prefix, forwarding toward the right neighborhood at each hop. This structure is what makes the internet fast---packets are routed by address, not by scanning all hosts.
+
+We propose that structured data can be routed by \textit{meaning} in the same way. Instead of a location hierarchy, we build a \textit{semantic hierarchy}: identity neighborhood, then coarse semantic category, then fine-grained discriminator. Each level of the hierarchy narrows the search space by meaning, not by physical location.
+
+The key shift is this: an IP address is assigned by network topology. A semantic address is \textit{inferred from the data's own ambiguity structure}. The discriminator ladder is, in effect, a learned semantic addressing scheme---one that tells the routing engine which aspects of meaning matter most for distinguishing records that would otherwise be confused.
+
+This reframing has a practical consequence. Traditional database indexing asks: ``which columns should I index?'' Semantic routing asks a deeper question: ``which fields carry the most meaning for disambiguation, in what order, and when is each level of routing worth its cost?'' The ladder answers all three.
+
+\section{Method}
+
+\subsection{Problem Setup}
+
+Let $\mathcal{D} = \{r_1, \ldots, r_n\}$ be a dataset of structured records, where each record $r_i$ is a mapping from field names to values. Let $\mathcal{I} \subset \text{fields}$ be a designated set of \textit{identity fields} that define the primary lookup key. Two records are \textit{identity-equivalent} if they agree on all fields in $\mathcal{I}$.
+
+An \textit{ambiguous neighborhood} is a maximal set of identity-equivalent records with cardinality $\geq 2$. Let $\mathcal{N} = \{N_1, \ldots, N_k\}$ denote the collection of all ambiguous neighborhoods.
+
+\subsection{Ambiguity Metric}
+
+We quantify residual ambiguity using unresolved record pairs. For a neighborhood $N_j$ partitioned by a set of fields $S$, the number of unresolved pairs within each partition bucket is $\binom{|b|}{2}$ for each bucket $b$. Total residual ambiguity is:
+
+\begin{equation}
+A(S) = \sum_{j=1}^{k} \sum_{b \in \text{partition}(N_j, S)} \binom{|b|}{2}
+\end{equation}
+
+The ambiguity reduction rate of adding field $f$ to an existing selection $S$ is:
+
+\begin{equation}
+\Delta(f \mid S) = \frac{A(S) - A(S \cup \{f\})}{A(S)}
+\end{equation}
+
+\subsection{Greedy Ladder Inference}
+
+The discriminator ladder is built by greedy selection:
+
+\begin{enumerate}
+\item Initialize $S_0 = \emptyset$, compute baseline ambiguity $A(\emptyset)$.
+\item At step $t$, evaluate all remaining candidate fields. Select $f^* = \arg\max_f \Delta(f \mid S_{t-1})$.
+\item If $\Delta(f^*) > 0$, append $f^*$ to the ladder and set $S_t = S_{t-1} \cup \{f^*\}$.
+\item Repeat until ambiguity reaches zero, no field provides positive reduction, or a maximum depth is reached.
+\end{enumerate}
+
+The resulting ladder $L = (f_1^*, f_2^*, \ldots, f_d^*)$ is ordered from coarsest splitter to finest tie-breaker.
+
+\subsection{Hierarchical Index and Routing}
+
+The ladder defines a hierarchical index. Each record is placed at the leaf of a nested structure keyed by its identity fields, then by $f_1^*$, then by $f_2^*$, and so on.
+
+At query time, the query's field values are used to navigate the hierarchy stage by stage. At each stage, the candidate set shrinks. Only the records at the final leaf node are examined, yielding a retrieval cost proportional to the leaf size rather than the dataset size.
+
+\subsection{Provenance Field Exclusion}
+
+Some fields (e.g., record identifiers) achieve perfect ambiguity reduction because they are effectively unique keys, not because they carry semantic content. We separate fields into \textit{semantic candidates} and \textit{provenance fields}, excluding the latter from ladder inference. This ensures the discovered ladder reflects meaningful data structure rather than accidental uniqueness.
+
+\section{Experiments}
+
+We evaluate on three public datasets chosen to span different domains, scales, and ambiguity structures.
+
+\subsection{Datasets}
+
+\begin{itemize}
+\item \textbf{CIViC} (Clinical Interpretation of Variants in Cancer): 4{,}666 clinical evidence records with identity fields (molecular profile, disease). Source: \texttt{civicdb.org} nightly export.
+\item \textbf{NOAA Storm Events}: 75{,}593 U.S. storm event records from 2023 with identity fields (state, event type). Source: NCEI bulk download.
+\item \textbf{FDA FAERS}: 200{,}000 adverse drug event records from 2024-Q3 with identity fields (drug name, reaction). Source: FDA FAERS quarterly ASCII export.
+\end{itemize}
+
+\subsection{Protocol}
+
+For each dataset, we: (1)~ingest records and specify identity fields, (2)~let the router discover the discriminator ladder automatically, (3)~sample 500--1{,}000 records as queries, (4)~measure retrieval accuracy, confusion rate, and records examined for both routed and flat-scan retrieval.
+
+\subsection{Results}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrrr}
+\toprule
+Dataset & Records & Speedup & Accuracy & Confusion & Ladder \\
+\midrule
+CIViC & 4{,}666 & 3{,}446$\times$ & 100.0\% & 0.0\% & rating $\to$ therapies $\to$ significance $\to$ evidence\_level \\
+Storm Events & 75{,}593 & 29{,}808$\times$ & 99.7\% & 0.3\% & county $\to$ month $\to$ source $\to$ magnitude \\
+FAERS & 200{,}000 & 9{,}381$\times$ & 99.6\% & 0.4\% & route $\to$ role $\to$ sex $\to$ dose\_form \\
+\bottomrule
+\end{tabular}
+\caption{Cross-domain results. Each dataset produces a different ladder. Speedup is measured as records examined (flat scan) divided by records examined (routed). Accuracy and confusion are averaged across multiple retrieval targets.}
+\label{tab:results}
+\end{table}
+
+Key observations:
+
+\begin{enumerate}
+\item The discovered ladder is different for every domain. Oncology routes by evidence rating first; weather routes by county; pharmacovigilance routes by administration route. The procedure adapts to each dataset's ambiguity structure.
+\item Speedups scale with dataset size and ambiguity density. The largest dataset (FAERS, 200k records) shows 9{,}381$\times$ speedup; the most ambiguity-dense per neighborhood (Storm Events) shows 29{,}808$\times$.
+\item Accuracy remains above 99.6\% across all domains, with confusion rates below 0.4\%.
+\item Build time is negligible: 0.03s for 4{,}666 records, 1.4s for 75{,}593 records, 2.5s for 200{,}000 records.
+\end{enumerate}
+
+\section{Related Work}
+
+Hierarchical indexing is well-studied in database systems (B-trees, R-trees, composite indexes). Our contribution is not the hierarchical index itself but the \textit{automatic inference} of which fields belong at which level, driven by empirical ambiguity reduction rather than schema design or query workload analysis.
+
+The greedy field selection resembles information-gain splitting in decision trees. The key difference is that our objective is retrieval disambiguation among identity-equivalent records, not classification of labeled examples.
+
+Semantic databases such as knowledge graphs (Stardog, Neo4j) and hybrid vector-relational systems (Weaviate) address meaning-aware retrieval but typically require ontology engineering or embedding models. Our approach uses no embeddings, no ML, and no predefined ontology---only the field-value structure already present in the data.
+
+\section{Limitations}
+
+The current implementation assumes records are flat key-value structures with categorical fields. Continuous fields, free-text fields, and nested structures are not yet supported. The greedy ladder inference is not guaranteed to find the globally optimal field ordering; however, in practice the greedy solution has been effective across all tested domains.
+
+The speedup comparison is against flat scan (linear search), not against optimized database query planners with pre-built indexes. The contribution is the automatic discovery of \textit{which} hierarchical index to build, not the claim that hierarchical indexing itself is novel.
+
+\section{Conclusion}
+
+Discriminator Ladder Learning provides a simple, domain-agnostic procedure for discovering how structured data wants to be routed. The method requires no training data, no embeddings, and no domain expertise---only identity fields and candidate fields. It produces an interpretable routing hierarchy that explains its own structure: ``for this data, split first by X, then by Y, then by Z.''
+
+The same 300-line Python implementation, with no modification, discovered effective routing ladders for oncology evidence, weather events, and adverse drug reports---three domains with no shared vocabulary, no shared schema, and no shared ambiguity structure.
+
+More broadly, this work suggests that the principle of hierarchical routing---well established for physical network addresses---can be extended to \textit{meaning}. Just as IP routing narrows by location prefix, semantic routing narrows by meaning prefix: identity first, then the field that best partitions the semantic neighborhood, then the field that best separates the remaining twins. The ladder is, in effect, a learned semantic address for the dataset.
+
+We believe this approach may be useful as a preprocessing layer for retrieval-augmented generation systems, as an automatic index advisor for structured databases, and as a routing layer for AI agent memory systems. The method is available as a standalone Python module requiring no external dependencies.
+
+Code and data are available at: \texttt{https://github.com/nathanelms/Database-whisperer}.
+
+\end{document}

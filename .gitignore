@@ -1,0 +1,19 @@
+# Data files - too large for repo, downloaded by test scripts
+civic_evidence_full.tsv
+storm_events_2023.csv
+faers_2024q3.zip
+ASCII/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
