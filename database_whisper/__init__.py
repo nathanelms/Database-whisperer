@@ -30,6 +30,12 @@ from .profiler import profile, profile_records
 from .router import Router
 from .ladder import LiveRouter, Memory
 from .loader import load, auto_detect_identity, auto_detect_provenance
+from .text import (
+    auto_detect_concepts,
+    extract_concept_instances,
+    meaning_addresses,
+    resolution_report,
+)
 from ._types import (
     RouteResult,
     LadderRung,
@@ -47,6 +53,12 @@ __all__ = [
     "load",
     "auto_detect_identity",
     "auto_detect_provenance",
+    # Text featurizer
+    "auto_detect_concepts",
+    "extract_concept_instances",
+    "meaning_addresses",
+    "resolution_report",
+    # Types
     "RouteResult",
     "LadderRung",
     "InsertEvent",
