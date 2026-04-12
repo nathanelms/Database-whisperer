@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Data Munchies — Find Gaps in Scientific Literature</title>
-<meta name="description" content="Find where nobody has published yet. Automated gap detection across 250M+ papers. Stop competing. Start discovering.">
+<title>Unmapped Data &mdash; Your data has structure your schema doesn't capture. We find it.</title>
+<meta name="description" content="Database Whisper discovers the structural meaning hidden in your data. Route by meaning, not by keyword. Works on structured data and unstructured text. Zero configuration.">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0a0a0f; color: #d0d0d0; line-height: 1.6; }
@@ -12,11 +12,58 @@ a { color: #7c8cf5; text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 .hero { text-align: center; padding: 80px 24px 40px; max-width: 800px; margin: 0 auto; }
-.hero h1 { font-size: 44px; font-weight: 700; color: #fff; letter-spacing: -1px; margin-bottom: 16px; }
+.hero h1 { font-size: 40px; font-weight: 700; color: #fff; letter-spacing: -1px; margin-bottom: 16px; }
 .hero .tagline { font-size: 22px; color: #888; margin-bottom: 24px; }
-.hero .pitch { font-size: 17px; color: #aaa; max-width: 600px; margin: 0 auto 40px; }
+.hero .pitch { font-size: 17px; color: #aaa; max-width: 640px; margin: 0 auto 40px; }
 
-.waitlist { max-width: 500px; margin: 0 auto 60px; text-align: center; }
+.stats-bar { display: flex; justify-content: center; gap: 48px; padding: 40px 24px; border-top: 1px solid #1a1a2a; border-bottom: 1px solid #1a1a2a; }
+.stat { text-align: center; }
+.stat-num { font-size: 36px; font-weight: 700; color: #7c8cf5; }
+.stat-label { font-size: 13px; color: #666; margin-top: 4px; }
+
+.section { padding: 60px 24px; max-width: 900px; margin: 0 auto; }
+.section-dark { background: #0d0d15; padding: 60px 24px; }
+.section-dark .section-inner { max-width: 900px; margin: 0 auto; }
+.section h2 { font-size: 28px; font-weight: 600; color: #fff; margin-bottom: 8px; text-align: center; }
+.section-dark h2 { font-size: 28px; font-weight: 600; color: #fff; margin-bottom: 8px; text-align: center; }
+.subtitle { color: #666; text-align: center; margin-bottom: 32px; font-size: 15px; }
+
+.card { background: #12121a; border: 1px solid #2a2a3a; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+.card:hover { border-color: #7c8cf5; }
+.card h3 { font-size: 18px; color: #fff; margin-bottom: 8px; }
+.card p { font-size: 14px; color: #888; }
+.card code { background: #0a0a15; color: #7c8cf5; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+
+.result-label { font-size: 11px; background: #1a1a3a; color: #7c8cf5; padding: 3px 10px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+.result-meaning { font-size: 15px; color: #fff; margin-bottom: 4px; }
+.result-example { font-size: 13px; color: #666; font-style: italic; }
+.result-address { font-size: 12px; color: #7c8cf5; font-family: monospace; margin-top: 4px; }
+
+.comparison-table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+.comparison-table th { text-align: left; color: #888; font-size: 13px; font-weight: 600; padding: 8px 12px; border-bottom: 1px solid #2a2a3a; }
+.comparison-table td { color: #d0d0d0; font-size: 14px; padding: 8px 12px; border-bottom: 1px solid #1a1a2a; }
+.comparison-table .num { color: #7c8cf5; font-weight: 600; font-family: monospace; }
+.comparison-table .win { color: #4caf50; font-weight: 600; }
+
+.ladder-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.ladder-num { font-size: 24px; font-weight: 700; color: #7c8cf5; width: 32px; text-align: center; }
+.ladder-bar { flex: 1; height: 32px; border-radius: 6px; display: flex; align-items: center; padding: 0 12px; font-size: 13px; font-weight: 600; color: #fff; }
+.ladder-pct { font-size: 12px; color: #888; width: 60px; text-align: right; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.step { text-align: center; }
+.step-num { font-size: 32px; font-weight: 700; color: #7c8cf5; margin-bottom: 8px; }
+.step-title { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+.step-desc { font-size: 13px; color: #888; }
+
+.cta { text-align: center; padding: 60px 24px; }
+.cta-button { display: inline-block; background: #7c8cf5; color: #fff; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; text-decoration: none; }
+.cta-button:hover { background: #6b7be0; text-decoration: none; }
+.cta-sub { font-size: 13px; color: #555; margin-top: 12px; }
+
+.waitlist { max-width: 500px; margin: 0 auto 20px; text-align: center; }
 .waitlist-form { display: flex; gap: 8px; justify-content: center; }
 .waitlist-form input { background: #16162a; border: 1px solid #2a2a3a; color: #e0e0e0; padding: 12px 18px; border-radius: 8px; font-size: 15px; width: 280px; }
 .waitlist-form input:focus { outline: none; border-color: #7c8cf5; }
@@ -24,49 +71,13 @@ a:hover { text-decoration: underline; }
 .waitlist-form button:hover { background: #6b7be0; }
 .waitlist-note { font-size: 12px; color: #555; margin-top: 8px; }
 
-.gaps-section { background: #0d0d15; padding: 60px 24px; }
-.gaps-content { max-width: 900px; margin: 0 auto; }
-.gaps-content h2 { font-size: 28px; font-weight: 600; color: #fff; margin-bottom: 8px; text-align: center; }
-.gaps-content .subtitle { color: #666; text-align: center; margin-bottom: 32px; font-size: 15px; }
-
-.gap-card { background: #12121a; border: 1px solid #2a2a3a; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
-.gap-card:hover { border-color: #7c8cf5; }
-.gap-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.gap-field { font-size: 16px; font-weight: 600; color: #fff; }
-.gap-score { font-size: 11px; background: #1a1a3a; color: #7c8cf5; padding: 3px 10px; border-radius: 4px; }
-.gap-desc { font-size: 14px; color: #aaa; margin-bottom: 8px; }
-.gap-detail { font-size: 13px; color: #666; }
-.gap-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 6px; }
-.gap-tag-active { background: #1a3a1a; color: #4caf50; }
-.gap-tag-cross { background: #1a1a3a; color: #64b5f6; }
-
-.how-section { padding: 60px 24px; max-width: 800px; margin: 0 auto; }
-.how-section h2 { font-size: 28px; font-weight: 600; color: #fff; margin-bottom: 32px; text-align: center; }
-.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
-.step { text-align: center; }
-.step-num { font-size: 32px; font-weight: 700; color: #7c8cf5; margin-bottom: 8px; }
-.step-title { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 8px; }
-.step-desc { font-size: 13px; color: #888; }
-
-.stats-bar { display: flex; justify-content: center; gap: 48px; padding: 40px 24px; border-top: 1px solid #1a1a2a; border-bottom: 1px solid #1a1a2a; }
-.stat { text-align: center; }
-.stat-num { font-size: 36px; font-weight: 700; color: #7c8cf5; }
-.stat-label { font-size: 13px; color: #666; margin-top: 4px; }
-
-.tools-section { max-width: 900px; margin: 0 auto; padding: 60px 24px; }
-.tools-section h2 { font-size: 28px; font-weight: 600; color: #fff; margin-bottom: 8px; text-align: center; }
-.tools-section .subtitle { color: #666; text-align: center; margin-bottom: 32px; font-size: 15px; }
-.tool-card { background: #12121a; border: 1px solid #2a2a3a; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
-.tool-card h3 { font-size: 18px; color: #fff; margin-bottom: 8px; }
-.tool-card p { font-size: 14px; color: #888; }
-.tool-card code { background: #0a0a15; color: #7c8cf5; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
-
 footer { text-align: center; padding: 40px 24px; color: #333; font-size: 12px; border-top: 1px solid #1a1a2a; }
 
 @media (max-width: 768px) {
-    .hero h1 { font-size: 32px; }
+    .hero h1 { font-size: 28px; }
     .stats-bar { flex-wrap: wrap; gap: 24px; }
     .steps { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
     .waitlist-form { flex-direction: column; align-items: center; }
     .waitlist-form input { width: 100%; }
 }
@@ -74,170 +85,332 @@ footer { text-align: center; padding: 40px 24px; color: #333; font-size: 12px; b
 </head>
 <body>
 
+<!-- ============================================================ -->
+<!-- HERO -->
+<!-- ============================================================ -->
 <div class="hero">
-    <h1>Find Your Gap. Publish Where Nobody Else Is.</h1>
-    <p class="tagline">Automated gap detection across scientific literature.</p>
+    <h1>Your data has structure your schema doesn't capture.</h1>
+    <p class="tagline">We find it.</p>
     <p class="pitch">
-        Why compete with 11 other papers when there's an adjacent topic nobody has touched?
-        We analyze 250M+ papers to find structural gaps in your field's knowledge &mdash;
-        combinations of methods, topics, and subfields that exist in neighboring areas
-        but not in yours.
+        Database Whisper discovers the structural meaning hidden in your data &mdash;
+        in structured tables and in unstructured text. No training data. No domain configuration.
+        One <code>pip install</code>. It maps what your current systems miss.
     </p>
 </div>
 
-<div class="waitlist">
-    <form class="waitlist-form" action="https://formspree.io/f/xwpkpjqe" method="POST">
-        <input type="email" name="email" placeholder="Enter your email" required>
-        <button type="submit">Join Waitlist</button>
-    </form>
-    <p class="waitlist-note">Free during beta. No spam. We'll email you when it's ready.</p>
-</div>
-
+<!-- ============================================================ -->
+<!-- STATS -->
+<!-- ============================================================ -->
 <div class="stats-bar">
     <div class="stat">
-        <div class="stat-num">395</div>
-        <div class="stat-label">Gaps found in 10k papers</div>
+        <div class="stat-num">96.5%</div>
+        <div class="stat-label">Precision on clinical text</div>
     </div>
     <div class="stat">
-        <div class="stat-num">10 sec</div>
-        <div class="stat-label">vs months of lit review</div>
+        <div class="stat-num">3</div>
+        <div class="stat-label">Domains validated</div>
     </div>
     <div class="stat">
-        <div class="stat-num">26</div>
-        <div class="stat-label">Scientific fields covered</div>
+        <div class="stat-num">40,291</div>
+        <div class="stat-label">Instances mapped</div>
     </div>
     <div class="stat">
-        <div class="stat-num">$0</div>
-        <div class="stat-label">During beta</div>
+        <div class="stat-num">20</div>
+        <div class="stat-label">Lines of algorithm</div>
     </div>
 </div>
 
-<div class="gaps-section">
-    <div class="gaps-content">
-        <h2>Real Gaps Found Today</h2>
-        <p class="subtitle">These are actual gaps detected from 10,000 recent papers via OpenAlex. Each one is a potential paper nobody has written.</p>
+<!-- ============================================================ -->
+<!-- THE PROBLEM -->
+<!-- ============================================================ -->
+<div class="section-dark">
+    <div class="section-inner">
+        <h2>The Problem: Keywords Don't Map Meaning</h2>
+        <p class="subtitle">A doctor writes "positive" in a clinical note. Your search returns 657 results. But positive <em>what</em>?</p>
 
-        <div class="gap-card">
-            <div class="gap-header">
-                <span class="gap-field">Medicine &gt; Genetics</span>
-                <span class="gap-score">Surprise: 1088</span>
+        <div class="card">
+            <div class="result-label">Address 1: Consult &bull; history &bull; none &bull; early</div>
+            <p class="result-meaning">"Family history: <strong>Positive</strong> for thyroid disease"</p>
+            <p class="result-example">Meaning: a relative has a condition &mdash; hereditary risk flag</p>
+        </div>
+
+        <div class="card">
+            <div class="result-label">Address 2: Consult &bull; blood &bull; being &bull; early</div>
+            <p class="result-meaning">"Blood cultures were <strong>positive</strong> ESBL Klebsiella"</p>
+            <p class="result-example">Meaning: pathogen detected &mdash; lab result</p>
+        </div>
+
+        <div class="card">
+            <div class="result-label">Address 3: Consult &bull; normal &bull; none &bull; early</div>
+            <p class="result-meaning">"<strong>Positive</strong> Rinne test"</p>
+            <p class="result-example">Meaning: clinical test produced a finding &mdash; exam result</p>
+        </div>
+
+        <p style="text-align: center; color: #888; margin-top: 24px; font-size: 15px;">
+            Same word. Three meanings. Three structural addresses.<br>
+            No medical ontology. No training data. Discovered from the text.
+        </p>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- HEAD TO HEAD -->
+<!-- ============================================================ -->
+<div class="section">
+    <h2>Head-to-Head: Structural Addresses vs. Embeddings</h2>
+    <p class="subtitle">Task: find "positive" instances that are lab results. 657 instances, 287 actual lab results.</p>
+
+    <table class="comparison-table">
+        <tr>
+            <th>Method</th>
+            <th>Retrieved</th>
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>F1</th>
+            <th>Interpretable?</th>
+        </tr>
+        <tr>
+            <td>Keyword ("positive")</td>
+            <td class="num">657</td>
+            <td>43.7%</td>
+            <td>100%</td>
+            <td>&mdash;</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>Embedding (best threshold)</td>
+            <td class="num">575</td>
+            <td>46.8%</td>
+            <td>93.7%</td>
+            <td>62.4%</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td style="color: #fff; font-weight: 600;">DW Structural Address</td>
+            <td class="num">255</td>
+            <td class="win">96.5%</td>
+            <td class="win">85.7%</td>
+            <td class="win">90.8%</td>
+            <td class="win">Yes</td>
+        </tr>
+    </table>
+
+    <p style="text-align: center; color: #888; font-size: 14px; margin-top: 16px;">
+        The embedding can't tell you <em>why</em> two uses differ.<br>
+        The structural address can: specialty + co-occurring term + verb frame + clause position.
+    </p>
+</div>
+
+<!-- ============================================================ -->
+<!-- THREE DOMAINS -->
+<!-- ============================================================ -->
+<div class="section-dark">
+    <div class="section-inner">
+        <h2>Same Tool. Three Domains. Three Different Maps.</h2>
+        <p class="subtitle">The ladder changes shape because the text changes genre. The tool discovers structure &mdash; it doesn't impose it.</p>
+
+        <div class="two-col">
+            <div class="card">
+                <h3>Clinical Notes</h3>
+                <p>40,291 instances &bull; 40 specialties &bull; 17,844 addresses</p>
+                <div style="margin-top: 12px;">
+                    <div class="ladder-row">
+                        <span class="ladder-num">1</span>
+                        <div class="ladder-bar" style="background: linear-gradient(90deg, #7c8cf5 90%, #2a2a3a 90%); width: 90%;">specialty</div>
+                        <span class="ladder-pct">90%</span>
+                    </div>
+                    <div class="ladder-row">
+                        <span class="ladder-num">2</span>
+                        <div class="ladder-bar" style="background: linear-gradient(90deg, #7c8cf5 80%, #2a2a3a 80%); width: 80%;">paired concept</div>
+                        <span class="ladder-pct">80%</span>
+                    </div>
+                    <div class="ladder-row">
+                        <span class="ladder-num">3</span>
+                        <div class="ladder-bar" style="background: linear-gradient(90deg, #7c8cf5 52%, #2a2a3a 52%); width: 52%;">verb class</div>
+                        <span class="ladder-pct">52%</span>
+                    </div>
+                    <div class="ladder-row">
+                        <span class="ladder-num">4</span>
+                        <div class="ladder-bar" style="background: linear-gradient(90deg, #7c8cf5 39%, #2a2a3a 39%); width: 39%;">clause position</div>
+                        <span class="ladder-pct">39%</span>
+                    </div>
+                </div>
             </div>
-            <div class="gap-desc">
-                No papers using <strong>Genome-wide association study</strong> methods.
-                But Biochemistry &amp; Molecular Biology has 16 papers using GWAS in Genetics.
-            </div>
-            <div class="gap-detail">
-                <span class="gap-tag gap-tag-active">68 papers in this subfield</span>
-                <span class="gap-tag gap-tag-cross">Method used in other fields</span>
+
+            <div class="card">
+                <h3>KJV Bible</h3>
+                <p>10,192 instances &bull; 66 books &bull; 5,584 addresses</p>
+                <div style="margin-top: 12px;">
+                    <div class="ladder-row">
+                        <span class="ladder-num">1</span>
+                        <div class="ladder-bar" style="background: linear-gradient(90deg, #7c8cf5 82%, #2a2a3a 82%); width: 82%;">category</div>
+                        <span class="ladder-pct">82%</span>
+                    </div>
+                    <div class="ladder-row">
+                        <span class="ladder-num">2</span>
+                        <div class="ladder-bar" style="background: linear-gradient(90deg, #7c8cf5 75%, #2a2a3a 75%); width: 75%;">verb class</div>
+                        <span class="ladder-pct">75%</span>
+                    </div>
+                    <div class="ladder-row">
+                        <span class="ladder-num">3</span>
+                        <div class="ladder-bar" style="background: linear-gradient(90deg, #7c8cf5 59%, #2a2a3a 59%); width: 59%;">paired concept</div>
+                        <span class="ladder-pct">59%</span>
+                    </div>
+                    <div class="ladder-row">
+                        <span class="ladder-num">4</span>
+                        <div class="ladder-bar" style="background: linear-gradient(90deg, #7c8cf5 55%, #2a2a3a 55%); width: 55%;">clause position</div>
+                        <span class="ladder-pct">55%</span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="gap-card">
-            <div class="gap-header">
-                <span class="gap-field">Medicine &gt; Genetics</span>
-                <span class="gap-score">Surprise: 544</span>
+        <div class="card" style="max-width: 440px; margin: 16px auto 0;">
+            <h3>US Constitution</h3>
+            <p>216 instances &bull; 62 sections &bull; section alone resolves 97%</p>
+            <div style="margin-top: 12px;">
+                <div class="ladder-row">
+                    <span class="ladder-num">1</span>
+                    <div class="ladder-bar" style="background: linear-gradient(90deg, #7c8cf5 97%, #2a2a3a 97%); width: 97%;">section</div>
+                    <span class="ladder-pct">97%</span>
+                </div>
             </div>
-            <div class="gap-desc">
-                No papers on <strong>Mendelian randomization</strong>.
-                But Biochemistry has 8 papers applying MR to genetic studies.
-            </div>
-            <div class="gap-detail">
-                <span class="gap-tag gap-tag-active">68 papers in this subfield</span>
-                <span class="gap-tag gap-tag-cross">Causal inference method underused in medicine</span>
-            </div>
+            <p style="margin-top: 8px; font-size: 13px; color: #666;">The Constitution was <em>designed</em> to be unambiguous. DW confirms it.</p>
         </div>
+    </div>
+</div>
 
-        <div class="gap-card">
-            <div class="gap-header">
-                <span class="gap-field">Environmental Science &gt; Industrial Manufacturing</span>
-                <span class="gap-score">Surprise: 374</span>
-            </div>
-            <div class="gap-desc">
-                No papers on <strong>Industry 4.0</strong> in environmental manufacturing.
-                But Engineering has 11 papers on Industry 4.0 in this subfield.
-            </div>
-            <div class="gap-detail">
-                <span class="gap-tag gap-tag-active">34 papers in this subfield</span>
-                <span class="gap-tag gap-tag-cross">Cross-disciplinary opportunity</span>
-            </div>
-        </div>
+<!-- ============================================================ -->
+<!-- THE CORE INSIGHT -->
+<!-- ============================================================ -->
+<div class="section">
+    <h2>The Core Insight</h2>
+    <p class="subtitle" style="max-width: 640px; margin: 0 auto 32px; font-size: 16px; color: #aaa;">
+        Language is less about words than about the mental vocabularies people carry.
+        When a microbiologist writes "positive," the word activates a vocabulary where it means
+        "pathogen detected." When a family physician writes "positive" in a review of systems,
+        the same word activates a different vocabulary where it means "symptom endorsed."
+    </p>
+    <p style="text-align: center; font-size: 16px; color: #aaa; max-width: 640px; margin: 0 auto 32px;">
+        The word is identical. The vocabularies are not.
+    </p>
+    <p style="text-align: center; font-size: 16px; color: #aaa; max-width: 640px; margin: 0 auto 32px;">
+        A database stores the word without storing which vocabulary was active.
+        Database Whisper recovers it &mdash; from the structural features already present in the text.
+    </p>
+</div>
 
-        <div class="gap-card">
-            <div class="gap-header">
-                <span class="gap-field">Engineering &gt; Industrial Manufacturing</span>
-                <span class="gap-score">Surprise: 381</span>
+<!-- ============================================================ -->
+<!-- HOW IT WORKS -->
+<!-- ============================================================ -->
+<div class="section-dark">
+    <div class="section-inner">
+        <h2>How It Works</h2>
+        <div class="steps" style="margin-top: 32px;">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-title">Point it at your data</div>
+                <div class="step-desc">CSV, JSON, SQLite, Excel, Parquet, or raw text. DW auto-detects identity fields, provenance, and structure.</div>
             </div>
-            <div class="gap-desc">
-                No papers on <strong>Waste management</strong> from an engineering perspective.
-                But Environmental Science has 3 papers combining waste management with manufacturing.
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-title">It discovers the map</div>
+                <div class="step-desc">Greedy pair-reduction finds which fields best distinguish records that share an identity. For text, it extracts 10 linguistic features automatically.</div>
             </div>
-            <div class="gap-detail">
-                <span class="gap-tag gap-tag-active">127 papers in this subfield</span>
-                <span class="gap-tag gap-tag-cross">Practical application gap</span>
-            </div>
-        </div>
-
-        <div class="gap-card">
-            <div class="gap-header">
-                <span class="gap-field">Medicine &gt; Genetics</span>
-                <span class="gap-score">Surprise: 476</span>
-            </div>
-            <div class="gap-desc">
-                No papers using <strong>Biobank</strong> data.
-                But Biochemistry has 7 papers leveraging biobank data in genetic research.
-            </div>
-            <div class="gap-detail">
-                <span class="gap-tag gap-tag-active">68 papers in this subfield</span>
-                <span class="gap-tag gap-tag-cross">Data resource underutilized</span>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-title">You see what you're missing</div>
+                <div class="step-desc">The discriminator ladder shows which features matter, in what order, and where the structural resolution limit is &mdash; the boundary where structure ends and interpretation begins.</div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="how-section">
-    <h2>How It Works</h2>
-    <div class="steps">
-        <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-title">Pick your field</div>
-            <div class="step-desc">Select your area of research. We pull metadata from 250M+ papers across all sciences.</div>
-        </div>
-        <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-title">We find the gaps</div>
-            <div class="step-desc">Our algorithm detects method-topic-subfield combinations that exist in neighboring fields but not yours.</div>
-        </div>
-        <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-title">You publish first</div>
-            <div class="step-desc">Each gap is a potential paper with zero competition. We show you the neighboring papers so you can build on existing work.</div>
-        </div>
-    </div>
-</div>
+<!-- ============================================================ -->
+<!-- INSTALL -->
+<!-- ============================================================ -->
+<div class="section">
+    <h2>Get Started</h2>
 
-<div class="tools-section">
-    <h2>Also Available: Database Whisper</h2>
-    <p class="subtitle">The structural profiling engine that powers Gap Finder. Works on any dataset.</p>
-
-    <div class="tool-card">
-        <h3>Profile any dataset in one line</h3>
+    <div class="card">
+        <h3>Structured data</h3>
+        <p style="margin-bottom: 12px;">Profile any dataset in two lines:</p>
         <p>
-            <code>pip install database-whisper</code><br><br>
-            Point it at any CSV, SQLite, Excel, JSON, or Parquet file. It discovers the structural
-            fingerprint, recommends indexes, and identifies data quality issues. Zero configuration.
-            Zero dependencies.
+            <code>pip install database-whisper</code>
+        </p>
+        <pre style="background: #0a0a15; color: #7c8cf5; padding: 16px; border-radius: 8px; margin-top: 12px; font-size: 13px; overflow-x: auto;">import database_whisper as dw
+report = dw.profile("your_data.csv")
+print(report)</pre>
+    </div>
+
+    <div class="card">
+        <h3>Unstructured text</h3>
+        <p style="margin-bottom: 12px;">Discover meaning-addresses in any text field:</p>
+        <pre style="background: #0a0a15; color: #7c8cf5; padding: 16px; border-radius: 8px; margin-top: 12px; font-size: 13px; overflow-x: auto;">import database_whisper as dw
+
+concepts = dw.auto_detect_concepts(records, text_field="notes")
+instances = dw.extract_concept_instances(records, "notes", concepts)
+report = dw.profile_records(instances, identity_fields=["concept"])
+print(report)</pre>
+    </div>
+
+    <p style="text-align: center; margin-top: 24px;">
+        <a href="https://github.com/nathanelms/Database-whisperer">GitHub</a> &nbsp;|&nbsp;
+        <a href="https://pypi.org/project/database-whisper/">PyPI</a>
+    </p>
+</div>
+
+<!-- ============================================================ -->
+<!-- GAP FINDER -->
+<!-- ============================================================ -->
+<div class="section-dark">
+    <div class="section-inner">
+        <h2>Also: Gap Finder for Scientific Literature</h2>
+        <p class="subtitle">DW applied to 250M+ papers via OpenAlex. Find where nobody has published yet.</p>
+
+        <div class="card">
+            <p>
+                The same algorithm that maps meaning in clinical notes can find structural gaps across
+                scientific literature &mdash; method-topic-subfield combinations that exist in neighboring
+                fields but not in yours. Each gap is a potential paper with zero competition.
+            </p>
+        </div>
+
+        <div class="waitlist" style="margin-top: 24px;">
+            <form class="waitlist-form" action="https://formspree.io/f/xwpkpjqe" method="POST">
+                <input type="email" name="email" placeholder="Enter your email for Gap Finder updates" required>
+                <button type="submit">Join Waitlist</button>
+            </form>
+            <p class="waitlist-note">Free during beta. No spam.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAPER -->
+<!-- ============================================================ -->
+<div class="section">
+    <h2>The Paper</h2>
+    <div class="card">
+        <h3>Finding the Limits of Meaning Within Textual Structures</h3>
+        <p><em>Where Text Ends and Interpretation Begins</em></p>
+        <p style="margin-top: 8px;">
+            Data is exploding. Funded annotation efforts are not. We present a method for computing
+            structural resolution limits from text &mdash; automatically, without training data,
+            without domain expertise. Validated on clinical notes, the KJV Bible, and the US Constitution.
         </p>
         <p style="margin-top: 12px;">
-            <a href="https://github.com/nathanelms/Database-whisperer">GitHub</a> &nbsp;|&nbsp;
-            <a href="https://pypi.org/project/database-whisper/">PyPI</a>
+            <em>Coming soon on arXiv.</em>
         </p>
     </div>
 </div>
 
+<!-- ============================================================ -->
+<!-- FOOTER -->
+<!-- ============================================================ -->
 <footer>
-    Data Munchies &mdash; by <a href="https://github.com/nathanelms">Nathan Elms</a>
+    Unmapped Data &mdash; by <a href="https://github.com/nathanelms">Nathan Elms</a>
     &nbsp;|&nbsp; Powered by <a href="https://github.com/nathanelms/Database-whisperer">Database Whisper</a>
-    + <a href="https://openalex.org">OpenAlex</a>
 </footer>
 
 </body>
