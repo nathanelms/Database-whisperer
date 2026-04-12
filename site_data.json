@@ -1,0 +1,215 @@
+{
+  "civic": {
+    "name": "CIViC Clinical Oncology",
+    "records": 4666,
+    "fields": 25,
+    "identity": [
+      "citation_id",
+      "citation",
+      "last_review_date"
+    ],
+    "ladder": [
+      "molecular_profile",
+      "therapies",
+      "significance",
+      "disease",
+      "rating"
+    ],
+    "ladder_detail": [
+      {
+        "rung": 1,
+        "field": "molecular_profile",
+        "ambiguity_reduction_rate": "75.75%"
+      },
+      {
+        "rung": 2,
+        "field": "therapies",
+        "ambiguity_reduction_rate": "60.17%"
+      },
+      {
+        "rung": 3,
+        "field": "significance",
+        "ambiguity_reduction_rate": "44.02%"
+      },
+      {
+        "rung": 4,
+        "field": "disease",
+        "ambiguity_reduction_rate": "47.57%"
+      },
+      {
+        "rung": 5,
+        "field": "rating",
+        "ambiguity_reduction_rate": "27.78%"
+      }
+    ],
+    "neighborhoods": 3830,
+    "ambiguous": 436,
+    "speedup": 4619.80198019802,
+    "accuracy": 1.0,
+    "ask_field": "molecular_profile"
+  },
+  "exoplanets": {
+    "name": "NASA Exoplanets",
+    "records": 6158,
+    "fields": 20,
+    "identity": [
+      "hostname",
+      "sy_dist",
+      "sy_gaiamag"
+    ],
+    "ladder": [
+      "pl_rade",
+      "pl_bmasse",
+      "pl_eqt",
+      "pl_orbeccen"
+    ],
+    "ladder_detail": [
+      {
+        "rung": 1,
+        "field": "pl_rade",
+        "ambiguity_reduction_rate": "78.70%"
+      },
+      {
+        "rung": 2,
+        "field": "pl_bmasse",
+        "ambiguity_reduction_rate": "96.81%"
+      },
+      {
+        "rung": 3,
+        "field": "pl_eqt",
+        "ambiguity_reduction_rate": "6.25%"
+      },
+      {
+        "rung": 4,
+        "field": "pl_orbeccen",
+        "ambiguity_reduction_rate": "6.67%"
+      }
+    ],
+    "neighborhoods": 4590,
+    "ambiguous": 1043,
+    "speedup": 6076.973684210527,
+    "accuracy": 1.0,
+    "ask_field": "pl_rade"
+  },
+  "earthquakes": {
+    "name": "USGS Earthquakes 2024",
+    "records": 20000,
+    "fields": 22,
+    "identity": [
+      "place",
+      "depth",
+      "dmin"
+    ],
+    "ladder": [
+      "updated",
+      "rms"
+    ],
+    "ladder_detail": [
+      {
+        "rung": 1,
+        "field": "updated",
+        "ambiguity_reduction_rate": "94.32%"
+      },
+      {
+        "rung": 2,
+        "field": "rms",
+        "ambiguity_reduction_rate": "100.00%"
+      }
+    ],
+    "neighborhoods": 19925,
+    "ambiguous": 66,
+    "speedup": 20000.0,
+    "accuracy": 1.0,
+    "ask_field": "updated"
+  },
+  "cern": {
+    "name": "CERN CMS Particle Collisions",
+    "records": 100000,
+    "fields": 21,
+    "identity": [
+      "M",
+      "E2",
+      "pt2"
+    ],
+    "ladder": [],
+    "ladder_detail": [],
+    "neighborhoods": 100000,
+    "ambiguous": 0,
+    "speedup": 100000.0,
+    "accuracy": 1.0,
+    "ask_field": "Run"
+  },
+  "spotify": {
+    "name": "Spotify Tracks",
+    "records": 114000,
+    "fields": 20,
+    "identity": [
+      "track_id",
+      "track_name",
+      "duration_ms"
+    ],
+    "ladder": [
+      "track_genre"
+    ],
+    "ladder_detail": [
+      {
+        "rung": 1,
+        "field": "track_genre",
+        "ambiguity_reduction_rate": "98.72%"
+      }
+    ],
+    "neighborhoods": 89741,
+    "ambiguous": 16641,
+    "speedup": 112871.28712871287,
+    "accuracy": 1.0,
+    "ask_field": "track_genre"
+  },
+  "plasticc": {
+    "name": "LSST PLAsTiCC Transients",
+    "records": 7848,
+    "fields": 26,
+    "identity": [
+      "libid_cadence",
+      "true_peakmjd",
+      "true_vpec"
+    ],
+    "ladder": [
+      "tflux_i"
+    ],
+    "ladder_detail": [
+      {
+        "rung": 1,
+        "field": "tflux_i",
+        "ambiguity_reduction_rate": "100.00%"
+      }
+    ],
+    "neighborhoods": 7266,
+    "ambiguous": 181,
+    "speedup": 7848.0,
+    "accuracy": 1.0,
+    "ask_field": "tflux_i"
+  },
+  "cosmodc2": {
+    "name": "LSST CosmoDC2 Galaxies",
+    "records": 50000,
+    "fields": 18,
+    "identity": [
+      "bulge_to_total_ratio_i"
+    ],
+    "ladder": [
+      "is_central"
+    ],
+    "ladder_detail": [
+      {
+        "rung": 1,
+        "field": "is_central",
+        "ambiguity_reduction_rate": "4.10%"
+      }
+    ],
+    "neighborhoods": 22359,
+    "ambiguous": 45,
+    "speedup": 3.433344365813229,
+    "accuracy": 1.0,
+    "ask_field": "is_central"
+  }
+}

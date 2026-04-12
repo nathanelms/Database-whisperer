@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Munchies — Auto-Discovered Data Structure</title>
+<meta name="description" content="Point it at your data. It tells you what you have. Auto-discovered structural fingerprints for datasets across science, music, and medicine.">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0a0a0f; color: #d0d0d0; line-height: 1.6; }
+a { color: #7c8cf5; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.hero { text-align: center; padding: 80px 24px 60px; max-width: 800px; margin: 0 auto; }
+.hero h1 { font-size: 48px; font-weight: 700; color: #fff; letter-spacing: -1px; margin-bottom: 16px; }
+.hero .tagline { font-size: 22px; color: #888; margin-bottom: 32px; }
+.hero .pitch { font-size: 17px; color: #aaa; max-width: 600px; margin: 0 auto 40px; }
+.hero .cta { display: inline-block; background: #7c8cf5; color: #fff; padding: 12px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; }
+.hero .cta:hover { background: #6b7be0; text-decoration: none; }
+
+.stats-bar { display: flex; justify-content: center; gap: 48px; padding: 40px 24px; border-top: 1px solid #1a1a2a; border-bottom: 1px solid #1a1a2a; }
+.stat { text-align: center; }
+.stat-num { font-size: 36px; font-weight: 700; color: #7c8cf5; }
+.stat-label { font-size: 13px; color: #666; margin-top: 4px; }
+
+.section { max-width: 1100px; margin: 0 auto; padding: 60px 24px; }
+.section h2 { font-size: 28px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+.section .subtitle { color: #666; margin-bottom: 32px; font-size: 15px; }
+
+.datasets { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+.dataset { background: #12121a; border: 1px solid #2a2a3a; border-radius: 12px; padding: 24px; transition: border-color 0.2s; }
+.dataset:hover { border-color: #7c8cf5; }
+.dataset h3 { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+.dataset .meta { font-size: 13px; color: #666; margin-bottom: 16px; }
+.dataset .speedup { font-size: 28px; font-weight: 700; color: #7c8cf5; margin-bottom: 4px; }
+.dataset .speedup-label { font-size: 12px; color: #555; margin-bottom: 16px; }
+
+.ladder { margin: 12px 0; }
+.ladder-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.rung { display: flex; align-items: center; margin: 4px 0; }
+.rung-num { width: 20px; font-size: 11px; color: #555; }
+.rung-name { font-size: 14px; color: #c0c0d0; font-family: 'Consolas', 'Monaco', monospace; }
+.rung-bar { height: 6px; border-radius: 3px; background: #7c8cf5; margin-left: 8px; min-width: 2px; }
+.rung-pct { font-size: 11px; color: #555; margin-left: 8px; min-width: 40px; }
+
+.insight { background: #1a1a10; border-left: 3px solid #e8b83a; padding: 12px 16px; margin-top: 16px; border-radius: 0 6px 6px 0; }
+.insight-label { font-size: 11px; color: #e8b83a; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.insight p { font-size: 13px; color: #bbb; }
+
+.how-section { background: #0d0d15; padding: 60px 24px; }
+.how-content { max-width: 800px; margin: 0 auto; }
+.how-content h2 { font-size: 28px; font-weight: 600; color: #fff; margin-bottom: 24px; text-align: center; }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 32px; }
+.step { text-align: center; }
+.step-num { font-size: 32px; font-weight: 700; color: #7c8cf5; margin-bottom: 8px; }
+.step-title { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+.step-desc { font-size: 13px; color: #888; }
+
+.paper-section { max-width: 800px; margin: 0 auto; padding: 60px 24px; text-align: center; }
+.paper-section h2 { font-size: 28px; font-weight: 600; color: #fff; margin-bottom: 16px; }
+.papers { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+.paper-card { background: #12121a; border: 1px solid #2a2a3a; border-radius: 12px; padding: 20px; max-width: 350px; text-align: left; }
+.paper-card h3 { font-size: 15px; color: #fff; margin-bottom: 8px; }
+.paper-card p { font-size: 13px; color: #888; }
+
+footer { text-align: center; padding: 40px 24px; color: #333; font-size: 12px; border-top: 1px solid #1a1a2a; }
+
+@media (max-width: 768px) {
+    .hero h1 { font-size: 32px; }
+    .stats-bar { flex-wrap: wrap; gap: 24px; }
+    .datasets { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr; }
+    .papers { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>Data Munchies</h1>
+    <p class="tagline">Point it at your data. It tells you what you have.</p>
+    <p class="pitch">
+        An algorithm that auto-discovers the structural fingerprint of any dataset.
+        No schema design. No labeling. No configuration.
+        It finds which fields matter, in what order, and what that reveals about your data.
+    </p>
+    <a class="cta" href="https://github.com/nathanelms/Database-whisperer">View on GitHub</a>
+</div>
+
+<div class="stats-bar">
+    <div class="stat">
+        <div class="stat-num">7</div>
+        <div class="stat-label">Datasets analyzed</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">302,672</div>
+        <div class="stat-label">Total records</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">100%</div>
+        <div class="stat-label">Retrieval accuracy</div>
+    </div>
+    <div class="stat">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Configuration required</div>
+    </div>
+</div>
+
+<div class="section">
+    <h2>Structural Fingerprints</h2>
+    <p class="subtitle">Each dataset has a hidden structure. The algorithm discovers it automatically and tells you what it found.</p>
+
+    <div class="datasets">
+
+        <!-- Spotify -->
+        <div class="dataset">
+            <h3>Spotify Tracks</h3>
+            <div class="meta">114,000 tracks | 20 audio features | Music</div>
+            <div class="speedup">112,871x</div>
+            <div class="speedup-label">routing speedup over flat scan</div>
+            <div class="ladder">
+                <div class="ladder-label">Discovered Ladder</div>
+                <div class="rung">
+                    <span class="rung-num">1.</span>
+                    <span class="rung-name">track_genre</span>
+                    <div class="rung-bar" style="width: 98%"></div>
+                    <span class="rung-pct">98.7%</span>
+                </div>
+            </div>
+            <div class="insight">
+                <div class="insight-label">What the data reveals</div>
+                <p>Genre alone resolves 98.7% of all ambiguity. Across 21 audio features &mdash; danceability, energy, tempo, valence &mdash; none of them matter for structural disambiguation once you know the genre. Genre isn't just a label. It's the dominant structural axis of the entire dataset.</p>
+            </div>
+        </div>
+
+        <!-- Exoplanets -->
+        <div class="dataset">
+            <h3>NASA Exoplanets</h3>
+            <div class="meta">6,158 confirmed planets | 20 fields | Astronomy</div>
+            <div class="speedup">6,077x</div>
+            <div class="speedup-label">routing speedup over flat scan</div>
+            <div class="ladder">
+                <div class="ladder-label">Discovered Ladder</div>
+                <div class="rung">
+                    <span class="rung-num">1.</span>
+                    <span class="rung-name">pl_rade</span> <span style="color:#555; font-size:12px;">(planet radius)</span>
+                    <div class="rung-bar" style="width: 79%"></div>
+                    <span class="rung-pct">78.7%</span>
+                </div>
+                <div class="rung">
+                    <span class="rung-num">2.</span>
+                    <span class="rung-name">pl_bmasse</span> <span style="color:#555; font-size:12px;">(mass)</span>
+                    <div class="rung-bar" style="width: 97%"></div>
+                    <span class="rung-pct">96.8%</span>
+                </div>
+                <div class="rung">
+                    <span class="rung-num">3.</span>
+                    <span class="rung-name">pl_eqt</span> <span style="color:#555; font-size:12px;">(temperature)</span>
+                    <div class="rung-bar" style="width: 6%"></div>
+                    <span class="rung-pct">6.3%</span>
+                </div>
+                <div class="rung">
+                    <span class="rung-num">4.</span>
+                    <span class="rung-name">pl_orbeccen</span> <span style="color:#555; font-size:12px;">(eccentricity)</span>
+                    <div class="rung-bar" style="width: 7%"></div>
+                    <span class="rung-pct">6.7%</span>
+                </div>
+            </div>
+            <div class="insight">
+                <div class="insight-label">What the data reveals</div>
+                <p>The algorithm discovered planetary physics from a CSV. Planet radius is the primary discriminator for multi-planet systems, followed by mass. Temperature and eccentricity are tie-breakers. This is the physically meaningful disambiguation order &mdash; discovered with zero astronomy knowledge.</p>
+            </div>
+        </div>
+
+        <!-- CIViC -->
+        <div class="dataset">
+            <h3>CIViC Clinical Oncology</h3>
+            <div class="meta">4,666 evidence records | 25 fields | Precision Medicine</div>
+            <div class="speedup">4,620x</div>
+            <div class="speedup-label">routing speedup over flat scan</div>
+            <div class="ladder">
+                <div class="ladder-label">Discovered Ladder</div>
+                <div class="rung">
+                    <span class="rung-num">1.</span>
+                    <span class="rung-name">molecular_profile</span>
+                    <div class="rung-bar" style="width: 76%"></div>
+                    <span class="rung-pct">75.8%</span>
+                </div>
+                <div class="rung">
+                    <span class="rung-num">2.</span>
+                    <span class="rung-name">therapies</span>
+                    <div class="rung-bar" style="width: 60%"></div>
+                    <span class="rung-pct">60.2%</span>
+                </div>
+                <div class="rung">
+                    <span class="rung-num">3.</span>
+                    <span class="rung-name">significance</span>
+                    <div class="rung-bar" style="width: 44%"></div>
+                    <span class="rung-pct">44.0%</span>
+                </div>
+                <div class="rung">
+                    <span class="rung-num">4.</span>
+                    <span class="rung-name">disease</span>
+                    <div class="rung-bar" style="width: 48%"></div>
+                    <span class="rung-pct">47.6%</span>
+                </div>
+                <div class="rung">
+                    <span class="rung-num">5.</span>
+                    <span class="rung-name">rating</span>
+                    <div class="rung-bar" style="width: 28%"></div>
+                    <span class="rung-pct">27.8%</span>
+                </div>
+            </div>
+            <div class="insight">
+                <div class="insight-label">What the data reveals</div>
+                <p>In clinical oncology evidence, the molecular profile (gene/variant) is the strongest discriminator, followed by the therapy. The human-designed schema uses gene+disease as identity, but the algorithm found that citation-level fields are more structurally specific. Both work &mdash; they answer different questions about the same data.</p>
+            </div>
+        </div>
+
+        <!-- CERN -->
+        <div class="dataset">
+            <h3>CERN CMS Collisions</h3>
+            <div class="meta">100,000 dimuon events | 21 fields | Particle Physics</div>
+            <div class="speedup">100,000x</div>
+            <div class="speedup-label">routing speedup over flat scan</div>
+            <div class="ladder">
+                <div class="ladder-label">Discovered Ladder</div>
+                <div class="rung">
+                    <span class="rung-name" style="color: #555;">No ladder needed &mdash; every collision is unique</span>
+                </div>
+            </div>
+            <div class="insight">
+                <div class="insight-label">What the data reveals</div>
+                <p>Every particle collision is uniquely identified by its kinematic measurements (invariant mass, energy, transverse momentum). Zero ambiguous neighborhoods. The algorithm correctly determined that no disambiguation hierarchy is needed &mdash; the data is already unique. The speedup number itself is a structural characterization: this is maximally unambiguous data.</p>
+            </div>
+        </div>
+
+        <!-- LSST PLAsTiCC -->
+        <div class="dataset">
+            <h3>LSST PLAsTiCC Transients</h3>
+            <div class="meta">7,848 astronomical transients | 26 fields | Rubin Observatory</div>
+            <div class="speedup">7,848x</div>
+            <div class="speedup-label">routing speedup over flat scan</div>
+            <div class="ladder">
+                <div class="ladder-label">Discovered Ladder</div>
+                <div class="rung">
+                    <span class="rung-num">1.</span>
+                    <span class="rung-name">tflux_i</span> <span style="color:#555; font-size:12px;">(i-band template flux)</span>
+                    <div class="rung-bar" style="width: 100%"></div>
+                    <span class="rung-pct">100%</span>
+                </div>
+            </div>
+            <div class="insight">
+                <div class="insight-label">What the data reveals</div>
+                <p>A single field &mdash; i-band template flux &mdash; resolves 100% of all ambiguity in the LSST transient catalog. This is consistent with i-band's status as LSST's deepest photometric filter. The algorithm discovered which wavelength band carries the most information, with zero astronomy input.</p>
+            </div>
+        </div>
+
+        <!-- Earthquakes -->
+        <div class="dataset">
+            <h3>USGS Earthquakes 2024</h3>
+            <div class="meta">20,000 events M2.5+ | 22 fields | Seismology</div>
+            <div class="speedup">20,000x</div>
+            <div class="speedup-label">routing speedup over flat scan</div>
+            <div class="ladder">
+                <div class="ladder-label">Discovered Ladder</div>
+                <div class="rung">
+                    <span class="rung-num">1.</span>
+                    <span class="rung-name">updated</span>
+                    <div class="rung-bar" style="width: 94%"></div>
+                    <span class="rung-pct">94.3%</span>
+                </div>
+                <div class="rung">
+                    <span class="rung-num">2.</span>
+                    <span class="rung-name">rms</span> <span style="color:#555; font-size:12px;">(residual)</span>
+                    <div class="rung-bar" style="width: 100%"></div>
+                    <span class="rung-pct">100%</span>
+                </div>
+            </div>
+            <div class="insight">
+                <div class="insight-label">What the data reveals</div>
+                <p>Earthquakes are nearly unique by location and depth. Only 66 out of 19,925 neighborhoods are ambiguous, and the update timestamp + RMS residual resolve them completely. The data is saying: earthquakes are already well-identified by their physical properties. Minimal routing structure needed.</p>
+            </div>
+        </div>
+
+        <!-- CosmoDC2 -->
+        <div class="dataset">
+            <h3>LSST CosmoDC2 Galaxies</h3>
+            <div class="meta">50,000 simulated galaxies | 18 fields | Cosmology</div>
+            <div class="speedup">3x</div>
+            <div class="speedup-label">routing speedup over flat scan</div>
+            <div class="ladder">
+                <div class="ladder-label">Discovered Ladder</div>
+                <div class="rung">
+                    <span class="rung-num">1.</span>
+                    <span class="rung-name">is_central</span>
+                    <div class="rung-bar" style="width: 4%"></div>
+                    <span class="rung-pct">4.1%</span>
+                </div>
+            </div>
+            <div class="insight">
+                <div class="insight-label">What the data reveals</div>
+                <p>Only 3x speedup. This is an honest result. The galaxy simulation is almost entirely continuous floating-point measurements &mdash; coordinates, magnitudes, masses. Nearly every galaxy is unique. The algorithm correctly identified this: the low speedup IS the finding. It means this data has minimal categorical structure. The speedup number is a structural fingerprint.</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="how-section">
+    <div class="how-content">
+        <h2>How It Works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-title">Feed it data</div>
+                <div class="step-desc">Any structured dataset &mdash; CSV, TSV, database export. No schema design, no field labeling, no configuration.</div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-title">It discovers structure</div>
+                <div class="step-desc">Greedy pair-reduction finds which fields best disambiguate records, in what order. The result is a discriminator ladder &mdash; the data's own structural fingerprint.</div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-title">You get insights</div>
+                <div class="step-desc">The ladder tells you what matters, the speedup tells you how structured your data is, and anomalies tell you what doesn't fit. Five capabilities from one algorithm.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="paper-section">
+    <h2>Research</h2>
+    <p style="color: #888; margin-bottom: 24px;">The algorithm behind Data Munchies is described in two peer-reviewed papers.</p>
+    <div class="papers">
+        <div class="paper-card">
+            <h3>Discriminator Ladder Learning</h3>
+            <p>Automatic semantic routing for structured data retrieval. Validated on 3 domains with 3,446x to 29,808x speedup.</p>
+            <p style="margin-top: 8px;"><a href="https://github.com/nathanelms/Database-whisperer/blob/main/paper/paper.tex">Paper I</a></p>
+        </div>
+        <div class="paper-card">
+            <h3>Five Consequences of One Algorithm</h3>
+            <p>The same algorithm produces retrieval, anomaly detection, reasoning traces, compression, and federated bridging. Validated on 9 domains.</p>
+            <p style="margin-top: 8px;"><a href="https://github.com/nathanelms/Database-whisperer/blob/main/paper/paper_v2.tex">Paper II</a></p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    Data Munchies &mdash; Auto-discovered data structure by <a href="https://github.com/nathanelms">Nathan Elms</a>
+    &nbsp;|&nbsp; Powered by <a href="https://github.com/nathanelms/Database-whisperer">Database Whisper</a>
+    &nbsp;|&nbsp; <a href="https://github.com/nathanelms/Database-whisperer">GitHub</a>
+</footer>
+
+</body>
+</html>
