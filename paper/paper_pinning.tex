@@ -5,7 +5,7 @@
 \usepackage{hyperref}
 \usepackage{authblk}
 
-\title{Does Options Open Interest Pin the Underlying?\\Five Tests on 2{,}294 Trading Days}
+\title{From Pinning to Amplification:\\Evidence of a Regime Shift in S\&P~500 Options Expiration Dynamics,\\2016--2025}
 
 \author{Nathan Elms}
 \affil{Independent Researcher}
@@ -17,99 +17,89 @@
 \maketitle
 
 \begin{abstract}
-The options pinning hypothesis proposes that concentrated open interest at specific strike prices suppresses underlying price movement near expiration, as delta-hedging activity by market makers creates a gravitational effect. We test this hypothesis using 1.6~million near-expiry SPY options records matched with E-mini S\&P~500 futures at one-minute resolution across 2{,}294 trading days (2016--2025). We examine five variations: close-versus-open distance to maximum open interest strikes, the relationship between open interest levels and pinning strength, daily range compression, intraday time spent near high open interest strikes, and final-hour convergence. None of the five tests produce evidence consistent with pinning. The single statistically significant result (p~$<$~0.001) shows the \textit{opposite} effect: days with the highest ATM open interest exhibit 16\% \textit{wider} daily ranges than days with the lowest, consistent with gamma-driven volatility amplification rather than suppression. The structural analysis was guided by Database Whisper, a discriminator ladder algorithm that identified open interest as the second most important structural discriminator in options data---more informative than implied volatility---prompting this investigation.
+Prior work has established that options open interest can either pin or amplify underlying price movement near expiration, depending on the sign of aggregate dealer gamma exposure (Avellaneda \& Lipkin 2003; Jeannin et~al.\ 2008; Barbon \& Buraschi 2021). Golez \& Jackwerth (2012) documented pinning in S\&P~500 futures through 2009. We extend their analysis to 2016--2025, a period marked by the proliferation of weekly and zero-days-to-expiration (0DTE) options, using 1.6~million near-expiry SPY options records matched with E-mini S\&P~500 futures at one-minute resolution across 2{,}294 trading days. Five tests find no evidence of pinning in this modern sample. The single statistically significant result ($p < 0.001$) shows that days with the highest ATM open interest exhibit 16\% wider daily ranges than days with the lowest---consistent with the gamma amplification mechanism described by Barbon \& Buraschi (2021) rather than the pinning documented in earlier periods. These results suggest that S\&P~500 expiration dynamics may have shifted from a pinning regime to an amplification regime, potentially driven by structural changes in dealer positioning associated with short-dated options growth. This investigation was prompted by a structural profiling tool (Database Whisper) that identified open interest as more structurally informative than implied volatility in options data.
 \end{abstract}
 
 \section{Introduction}
 
-Options pinning---the idea that underlying prices are ``pinned'' to strikes with high open interest near expiration---is one of the most persistent informal beliefs in derivatives markets. The proposed mechanism is straightforward: as expiration approaches, market makers holding short options positions delta-hedge more aggressively, and the hedging flows at high open interest strikes create buying pressure below the strike and selling pressure above, suppressing the underlying's ability to move away.
+Options pinning---the tendency of underlying prices to gravitate toward strikes with concentrated open interest near expiration---is among the best-documented market microstructure effects in equity options. The theoretical foundation was laid by Avellaneda \& Lipkin~\cite{avellaneda2003}, who derived the delta-hedging-driven drift that pulls prices toward high open interest strikes. Ni, Pearson, \& Poteshman~\cite{ni2005} provided definitive empirical evidence of pinning in U.S.\ equity options, estimating aggregate market capitalization effects of \$9~billion per expiration date. This work has been extended and refined by multiple authors~\cite{jeannin2008,filippou2022,chung2013}.
 
-The hypothesis has been discussed in practitioner literature since at least the early 2000s~\cite{ni2005} and is widely referenced in options trading communities. However, empirical evidence remains mixed. Ni, Pearson, and Poteshman~(2005) found some evidence of pinning in equity options, while subsequent work has produced conflicting results depending on the market, time period, and methodology.
+An important theoretical insight, however, is that the \textit{direction} of the hedging effect depends on dealer positioning. Jeannin et~al.~\cite{jeannin2008} showed that when market makers are \textit{long} options (positive gamma), their hedging activity dampens price movement---pinning. When they are \textit{short} options (negative gamma), their hedging \textit{amplifies} price movement. Barbon \& Buraschi~\cite{barbon2021} empirically documented this gamma fragility effect, showing that stocks with large negative dealer gamma exhibit intraday momentum rather than mean-reversion.
 
-This paper was motivated by an unexpected finding from a structural analysis tool. We applied Database Whisper~\cite{elms2026dw}, a discriminator ladder algorithm that automatically discovers which fields best distinguish records in a structured dataset, to a database of 24.7~million SPY options records. The algorithm identified open interest as the second most important structural discriminator---ranking above implied volatility---for distinguishing options within the same date, type, and expiration bucket. This structural prominence of open interest, combined with the persistent belief in pinning among practitioners, motivated a systematic empirical test.
+For the S\&P~500, the most comprehensive study is Golez \& Jackwerth~\cite{golez2012}, who found pinning in S\&P~500 futures on serial option expirations through November~2009. Their work predates several structural changes in the options market, including the explosive growth of weekly options (introduced broadly in 2010--2012) and zero-days-to-expiration (0DTE) contracts, which by 2023 accounted for approximately 50\% of daily SPX options volume.
+
+These structural changes may have altered the balance of dealer positioning. If the proliferation of short-dated options has shifted dealers toward net short gamma positions more frequently, the theoretical framework of Jeannin et~al.\ and Barbon \& Buraschi predicts a shift from pinning to amplification.
+
+We test this possibility using modern data (2016--2025) across five variations of the pinning hypothesis.
+
+\subsection{Structural Motivation}
+
+This investigation was prompted by an unexpected finding from Database Whisper~\cite{elms2026dw}, a structural profiling algorithm that automatically discovers which fields best distinguish records in structured datasets. Applied to 24.7~million SPY options records, the algorithm identified the following discriminator hierarchy among options sharing the same date, type, and expiration bucket:
+
+\begin{center}
+\texttt{delta} (72\%) $\to$ \texttt{open\_interest} (59\%) $\to$ \texttt{implied\_volatility} (52\%) $\to$ \texttt{volume} (43\%)
+\end{center}
+
+Open interest ranked as structurally more informative than implied volatility for distinguishing options---a finding that contradicts the typical practitioner focus on volatility over positioning. This structural prominence motivated a closer examination of open interest's empirical effects.
 
 \section{Data}
 
-\subsection{Options Data}
+\textbf{Options:} 24.7~million SPY options records, January~2008 to December~2025, containing strike, type, mark, bid, ask, volume, open interest, implied volatility, and full Greeks. Near-expiry subset ($\text{DTE} \leq 3$): 1{,}566{,}296 records.
 
-We use 24.7~million SPY options records spanning January~2008 to December~2025, sourced from historical options chain data. Each record contains: contract identifier, strike, type (call/put), last price, mark, bid, ask, volume, open interest, implied volatility, and full Greeks (delta, gamma, theta, vega, rho). For the pinning analysis, we focus on near-expiry options ($\text{DTE} \leq 3$), yielding 1{,}566{,}296 records.
+\textbf{Underlying:} E-mini S\&P~500 futures (@ES) at one-minute resolution, October~2016 to April~2026 (3.3~million bars). Regular trading hours (9:30--16:00~ET): 937{,}182 bars across 2{,}436 trading days.
 
-\subsection{Underlying Data}
+\textbf{Matching:} Each trading day's SPY options open interest profile is matched with the corresponding ES intraday price action (SPY $\approx$ ES/10 for strike-level comparisons). Merged dataset: 2{,}294 trading days.
 
-We use E-mini S\&P~500 futures (@ES) at one-minute resolution from October~2016 to April~2026 (3.3~million bars). We restrict to regular trading hours (9:30--16:00~ET), producing 937{,}182 bars across 2{,}436 trading days. SPY and ES track closely; we convert ES prices to SPY-equivalent by dividing by~10 for strike-level comparisons.
+\section{Five Tests}
 
-\subsection{Matching}
-
-We match each trading day's SPY options open interest profile with the corresponding day's ES intraday price action. The merged dataset covers 2{,}294 trading days.
-
-\section{Structural Motivation: Database Whisper}
-
-Before designing the pinning tests, we profiled the options dataset using Database Whisper~\cite{elms2026dw,elms2026five}, a greedy pair-reduction algorithm that discovers which fields most effectively disambiguate records that share the same identity key.
-
-When options are grouped by date, type, and days-to-expiration bucket, the algorithm discovers the following discriminator ladder:
-
-\begin{center}
-\texttt{delta\_bucket} (72\%) $\to$ \texttt{oi\_bucket} (59\%) $\to$ \texttt{iv\_bucket} (52\%) $\to$ \texttt{vol\_bucket} (43\%)
-\end{center}
-
-The percentages indicate ambiguity reduction rate at each rung. The key finding: \textbf{open interest is structurally more informative than implied volatility} for distinguishing options within the same group. Every options textbook and most quantitative models prioritize implied volatility over open interest. The data's disambiguation structure disagrees.
-
-This does not imply that open interest predicts returns better than IV. Disambiguation importance and predictive importance are different properties~\cite{elms2026five}. However, the structural prominence of open interest suggested that its market microstructure effects---including the hypothesized pinning---deserved a closer look.
-
-\section{Five Tests of Pinning}
-
-We test five variations of the pinning hypothesis. For each trading day, we identify the SPY strike with the highest near-expiry ($\text{DTE} \leq 3$) total open interest. All tests ask: does price behavior relate to this maximum-OI strike?
+For each trading day, we identify the SPY strike with maximum near-expiry ($\text{DTE} \leq 3$) open interest. We also compute total ATM open interest (options with $|\text{delta}| \in [0.35, 0.65]$). All tests examine whether price behavior relates to these open interest measures.
 
 \subsection{Test 1: Close-vs-Open Distance}
 
-\textbf{Hypothesis:} If pinning occurs, the closing price should be closer to the maximum-OI strike than the opening price---the market gravitates toward the pin.
+Does price close nearer to the maximum-OI strike than it opened?
 
-\textbf{Result:} Price moved \textit{toward} the maximum-OI strike on 44.9\% of days and \textit{away} on 55.1\%. Average distance change: $-\$0.06$ (negative = moved away). Not statistically significant ($t = -0.84$, $p = 0.40$).
+\textbf{Result:} Price moved toward the max-OI strike on 44.9\% of days and away on 55.1\%. Not significant ($p = 0.40$).
 
 \subsection{Test 2: OI-Level Effect}
 
-\textbf{Hypothesis:} If pinning is driven by hedging flows, the effect should strengthen when open interest is higher---more contracts to hedge, stronger gravitational pull.
+Does the gravitation effect strengthen with higher open interest?
 
-\textbf{Result:} High-OI days (above median total OI) moved toward the max-OI strike 47.5\% of the time vs.\ 42.2\% for low-OI days. Directionally consistent with pinning but not statistically significant ($t = 1.32$, $p = 0.19$).
+\textbf{Result:} High-OI days moved toward the max-OI strike 47.5\% of the time vs.\ 42.2\% for low-OI days. Directionally consistent with pinning but not significant ($p = 0.19$).
 
 \subsection{Test 3: Daily Range Compression}
 
-\textbf{Hypothesis:} Pinning should compress the daily range---if price is being pulled toward a strike, it should wander less far from it.
-
-\textbf{Result:} The \textit{opposite} occurs. Daily range increases monotonically with open interest:
+Does concentrated open interest compress the daily trading range?
 
 \begin{table}[h]
 \centering
 \begin{tabular}{lccc}
 \toprule
-OI Tercile & Mean Range & Median Range & Days \\
+OI Tercile & Mean Daily Range & Median & Days \\
 \midrule
 Low & 0.889\% & 0.688\% & 765 \\
 Medium & 0.999\% & 0.791\% & 764 \\
 High & 1.033\% & 0.847\% & 765 \\
 \bottomrule
 \end{tabular}
-\caption{Daily range by open interest level. High OI is associated with wider ranges.}
+\caption{Daily range by near-expiry ATM open interest level. The relationship is monotonically positive.}
 \label{tab:range}
 \end{table}
 
-High-OI days have 16.2\% wider ranges than low-OI days. This difference is statistically significant ($t = -3.67$, $p = 0.0003$). The result is inconsistent with pinning and consistent with gamma-driven amplification: market makers' hedging activity creates feedback loops that widen rather than compress the trading range.
+\textbf{Result:} The opposite of pinning. High-OI days exhibit 16.2\% wider ranges than low-OI days. Statistically significant ($t = -3.67$, $p = 0.0003$). This is consistent with the gamma amplification mechanism of Barbon \& Buraschi~\cite{barbon2021}.
 
 \subsection{Test 4: Intraday Time Near Max-OI Strike}
 
-\textbf{Hypothesis:} If pinning operates intraday, price should spend more time near the maximum-OI strike on high-OI days.
+Does price spend more time near the max-OI strike on high-OI days?
 
-\textbf{Result:} On a sample of 200 days, neither high-OI nor low-OI days showed meaningful time concentration near the max-OI strike. No significant difference detected.
+\textbf{Result:} No meaningful difference detected on a 200-day sample.
 
 \subsection{Test 5: Final-Hour Convergence}
 
-\textbf{Hypothesis:} Pinning should be strongest near the close as expiration approaches and gamma peaks. Price at close should be nearer to the max-OI strike than at midday or 3:00~PM.
+Does price converge toward the max-OI strike in the final trading hour, when gamma effects should peak?
 
-\textbf{Result:} Price converged toward the max-OI strike from noon to close on 43.0\% of high-OI days and 45.0\% of low-OI days. No significant difference ($t = -0.28$, $p = 0.78$).
+\textbf{Result:} Price converged from noon to close on 43.0\% of high-OI days vs.\ 45.0\% of low-OI days. No significant difference ($p = 0.78$).
 
-\section{Discussion}
-
-\subsection{Summary of Findings}
+\section{Summary of Results}
 
 \begin{table}[h]
 \centering
@@ -117,53 +107,88 @@ High-OI days have 16.2\% wider ranges than low-OI days. This difference is stati
 \toprule
 Test & Metric & p-value & Finding \\
 \midrule
-V1: Close vs open & Toward max-OI: 44.9\% & 0.40 & No pinning \\
+V1: Close vs open & Toward: 44.9\% & 0.40 & No pinning \\
 V2: OI-level effect & High OI toward: 47.5\% & 0.19 & No pinning \\
-V3: Range compression & High OI: +16.2\% range & 0.0003 & Anti-pinning \\
+V3: Range compression & High OI: +16.2\% range & 0.0003 & Amplification \\
 V4: Time near strike & No concentration & --- & No pinning \\
 V5: Final-hour convergence & High OI: 43.0\% & 0.78 & No pinning \\
 \bottomrule
 \end{tabular}
-\caption{Summary of five pinning tests across 2{,}294 trading days.}
+\caption{Summary of five tests across 2{,}294 trading days.}
 \label{tab:summary}
 \end{table}
 
-None of the five tests support the pinning hypothesis. The only statistically significant result (Test~3, $p < 0.001$) shows the opposite effect.
+\section{Discussion}
 
-\subsection{Alternative Interpretation: Gamma Amplification}
+\subsection{Reconciling with Prior Literature}
 
-The V3 result---wider ranges on high-OI days---is consistent with gamma-driven amplification. When market makers are short a large number of near-expiry options, they must delta-hedge aggressively as the underlying moves. This creates a positive feedback loop: upward moves force buying, which pushes price higher, which forces more buying. Downward moves force selling. The result is amplified rather than suppressed movement.
+Our results do not contradict the pinning literature. Pinning has been convincingly demonstrated in individual equity options~\cite{ni2005,filippou2022}. Golez \& Jackwerth~\cite{golez2012} found pinning in S\&P~500 futures through 2009. Our finding is that, in the 2016--2025 sample, the S\&P~500 no longer exhibits pinning. The single significant result points in the opposite direction.
 
-This mechanism is the opposite of pinning but arises from the same market microstructure. Both pinning and amplification are driven by delta-hedging of concentrated open interest. The empirical data suggests that amplification dominates.
+This is consistent with the theoretical framework. Jeannin et~al.~\cite{jeannin2008} showed that the direction of the hedging effect depends on the sign of dealer gamma. Barbon \& Buraschi~\cite{barbon2021} empirically confirmed that negative dealer gamma produces amplification. If the growth of short-dated options has shifted aggregate dealer positioning toward net short gamma more frequently, a transition from pinning to amplification is exactly what the theory predicts.
+
+\subsection{Possible Structural Drivers}
+
+Several market structure changes between the Golez \& Jackwerth sample (ending 2009) and ours (beginning 2016) may explain the shift:
+
+\begin{itemize}
+\item \textbf{0DTE proliferation:} By 2023, zero-days-to-expiration contracts represent approximately 50\% of daily SPX options volume. These contracts carry extreme gamma, and dealers who are short them experience amplified hedging demands.
+\item \textbf{Weekly options growth:} Weekly expirations, introduced broadly in 2010--2012, distribute open interest across more frequent expirations, potentially changing the concentration dynamics that drive pinning.
+\item \textbf{Retail options participation:} The growth of retail options trading since 2020 has altered the composition of open interest, with retail traders more likely to buy options (putting dealers short gamma) than to sell them.
+\end{itemize}
+
+We note these as potential explanations rather than confirmed mechanisms. Disentangling these effects would require dealer-level positioning data, which is not publicly available.
 
 \subsection{Confounds}
 
-We note an important confound: high open interest near expiry is not exogenous. Traders accumulate positions in anticipation of events (FOMC, CPI, earnings), and those events independently cause large moves. The wider ranges on high-OI days may reflect this selection effect rather than a causal amplification mechanism.
+An important confound is that high open interest near expiry is not exogenous. Traders accumulate positions in anticipation of scheduled events (FOMC, CPI, earnings), and those events independently cause large moves. The wider ranges on high-OI days may partly reflect this selection effect.
 
-Disentangling event-driven OI accumulation from the structural effect of OI on price dynamics would require controlling for scheduled economic events. We leave this to future work.
+Additionally, our use of SPY options matched with ES futures introduces a cross-product approximation (SPY $\approx$ ES/10). While SPY and ES track closely, slight divergences may affect strike-level precision.
 
 \subsection{Role of Structural Profiling}
 
-This investigation was prompted by a structural profiling tool (Database Whisper) identifying open interest as more structurally informative than implied volatility in options data. This illustrates a use case for automated structural analysis: the algorithm surfaced a feature ranking that contradicted conventional wisdom, which in turn motivated an empirical investigation that produced a statistically significant result in the opposite direction of the prevailing hypothesis.
+The structural profiling tool that motivated this investigation (Database Whisper) identified open interest as more structurally informative than implied volatility in options data---a ranking that contradicts conventional practitioner wisdom. This structural finding did not predict the direction of the result. It identified that open interest carried more disambiguation power than expected, which prompted the empirical question. The data answered it.
 
-The structural profiler did not predict the anti-pinning result. It identified open interest as structurally prominent, which prompted the question. The data answered it.
+This illustrates a potential workflow: automated structural analysis surfaces unexpected feature importance, which generates testable hypotheses, which produce empirical findings. The tool identified the question; the five tests answered it.
 
 \section{Conclusion}
 
-We find no evidence that options open interest pins the underlying across five tests on 2{,}294 trading days using 1.6~million near-expiry options records and minute-resolution futures data. The single statistically significant finding shows the opposite: high open interest days have significantly wider daily ranges ($p < 0.001$), consistent with gamma-driven amplification rather than suppression.
+We find no evidence of options pinning in S\&P~500 expiration dynamics across five tests on 2{,}294 trading days (2016--2025). The significant finding ($p < 0.001$) shows the opposite: high near-expiry ATM open interest is associated with wider, not narrower, daily ranges. This is consistent with the gamma amplification mechanism documented by Barbon \& Buraschi~(2021) and the theoretical predictions of Jeannin et~al.~(2008) under net short dealer gamma.
 
-These results do not rule out pinning at shorter timescales, in individual equities, or in specific market regimes. They do suggest that the general form of the pinning hypothesis---that concentrated open interest suppresses movement of the S\&P~500 near expiration---is not supported by the data.
+We interpret these results as evidence of a possible regime shift in S\&P~500 expiration dynamics---from pinning in earlier periods (as documented by Golez \& Jackwerth through 2009) to amplification in the modern era, potentially driven by the structural growth of short-dated options and changes in dealer positioning. We offer this interpretation as a hypothesis for further investigation, not as a definitive conclusion.
+
+These findings complement rather than contradict the existing pinning literature. Pinning remains well-documented in individual equities. The S\&P~500, however, may have outgrown it.
 
 \begin{thebibliography}{99}
 
+\bibitem{avellaneda2003}
+M.~Avellaneda and M.~D.~Lipkin, ``A Market-Induced Mechanism for Stock Pinning,'' \textit{Quantitative Finance}, 3(6), 2003.
+
 \bibitem{ni2005}
 S.~X.~Ni, N.~D.~Pearson, A.~M.~Poteshman, ``Stock Price Clustering on Option Expiration Dates,'' \textit{Journal of Financial Economics}, 78(1), 2005.
+
+\bibitem{jeannin2008}
+M.~Jeannin, G.~Iori, D.~Samuel, ``Modeling Stock Pinning,'' \textit{Quantitative Finance}, 8(8), 2008.
+
+\bibitem{golez2012}
+B.~Golez and J.~C.~Jackwerth, ``Pinning in the S\&P~500 Futures,'' \textit{Journal of Financial Economics}, 106(3), 2012.
+
+\bibitem{barbon2021}
+A.~Barbon and A.~Buraschi, ``Gamma Fragility,'' Working Paper, University of St.~Gallen, 2021.
+
+\bibitem{filippou2022}
+I.~Filippou, P.~A.~Garcia-Ares, F.~Zapatero, ``No Max Pain, No Max Gain: A Case of Predictable Reversal,'' SSRN Working Paper, 2022.
+
+\bibitem{chung2013}
+K.~Chung et~al., ``Weekly Options on Stock Pinning,'' Working Paper, William Paterson University, 2013.
+
+\bibitem{ni2021}
+S.~X.~Ni, N.~D.~Pearson, A.~M.~Poteshman, J.~S.~White, ``Does Option Trading Have a Pervasive Impact on Underlying Stock Prices?'' \textit{Review of Financial Studies}, 34(4), 2021.
 
 \bibitem{elms2026dw}
 N.~Elms, ``Discriminator Ladder Learning: Automatic Semantic Routing for Structured Data Retrieval,'' 2026.
 
 \bibitem{elms2026five}
-N.~Elms, ``Five Consequences of One Algorithm: Anomaly Detection, Reasoning, Compression, and Federation from Discriminator Ladders,'' 2026.
+N.~Elms, ``Five Consequences of One Algorithm,'' 2026.
 
 \end{thebibliography}
 
