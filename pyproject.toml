@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "database-whisper"
+version = "0.1.0"
+description = "Structural profiling for any dataset. Point it at your data. It tells you what you have."
+readme = "README.md"
+license = {text = "MIT"}
+authors = [{name = "Nathan Elms"}]
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Database",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+keywords = ["database", "profiling", "indexing", "routing", "data-structure", "auto-discovery"]
+
+[project.urls]
+Homepage = "https://datamunchies.com"
+Repository = "https://github.com/nathanelms/Database-whisperer"
+Documentation = "https://github.com/nathanelms/Database-whisperer"
+
+[tool.setuptools.packages.find]
+include = ["database_whisper*"]

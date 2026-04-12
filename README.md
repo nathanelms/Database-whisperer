@@ -1,125 +1,130 @@
-# Database Whisper
+# database-whisper
 
-**A semantic routing engine that automatically discovers how your data wants to be searched.**
+Auto-discovers structural patterns in datasets. Point it at a file, it tells you which fields matter for disambiguation, recommends indexes, and characterizes the structure.
 
-Database Whisper analyzes structured data, infers a hierarchical discriminator ladder, and routes queries through that ladder — touching a fraction of the records that flat search requires.
+Zero configuration. Zero dependencies (core). Works on CSV, TSV, JSON, SQLite, Excel, Parquet, and SQL dumps.
 
-No manual indexing. No schema design. Point it at data, it learns the structure.
-
-## Results
-
-Tested on three completely different public datasets. Same procedure, different data, different ladders discovered automatically.
-
-| Domain | Dataset | Records | Speedup vs flat scan | Routed accuracy | Ladder discovered |
-|--------|---------|---------|---------------------|-----------------|-------------------|
-| Oncology | CIViC evidence | 4,666 | **3,446x** | 100.00% | rating > therapies > significance > evidence_level |
-| Weather | NOAA Storm Events 2023 | 75,593 | **29,808x** | 99.67% | county > month > source > magnitude |
-| Pharma safety | FDA FAERS 2024-Q3 | 200,000 | **9,381x** | 99.63% | route > role > sex > dose_form |
-
-Each ladder is different because each dataset has different ambiguity structure. The method found the right routing hierarchy for each domain without being told what to look for.
-
-## How it works
-
-**The core idea:** structured data has hidden routing structure. Some fields are good for narrowing neighborhoods (coarse splitters). Other fields are good for separating near-twin records (final tie-breakers). Database Whisper discovers which is which.
-
-**Step 1: Ingest.** You provide records and tell it which fields define identity (the primary lookup key).
-
-**Step 2: Discover.** The engine finds ambiguous neighborhoods — groups of records sharing the same identity key — and greedily ranks candidate fields by how much each one reduces ambiguity.
-
-**Step 3: Index.** It builds a hierarchical index using the discovered ladder.
-
-**Step 4: Route.** Queries walk the index stage by stage, narrowing candidates at each step instead of scanning everything.
-
-```python
-from semantic_router import SemanticRouter
-
-router = SemanticRouter()
-router.ingest(
-    records=your_data,                           # list of dicts
-    identity_fields=["name", "category"],        # primary lookup key
-    provenance_fields=["id"],                    # exclude from routing
-)
-
-# Routed query -- touches only the records it needs to
-result = router.query(
-    {"name": "aspirin", "category": "pain", "form": "tablet", "dose": "500mg"},
-    ask_field="manufacturer"
-)
-
-print(result.answer)              # the retrieved value
-print(result.records_examined)    # how many records were touched
-print(result.total_records)       # how many exist
-print(result.route_used)          # which routing path was taken
-```
-
-## What the router discovers
-
-```
-=== Router Structure ===
-  Total records: 200000
-  Identity neighborhoods: 78625
-  Ambiguous neighborhoods: 26955
-  Discovered ladder:
-    Rung 1: route (reduction=14.26%)
-    Rung 2: role (reduction=10.54%)
-    Rung 3: sex (reduction=6.78%)
-    Rung 4: dose_form (reduction=4.34%)
-```
-
-The ladder tells you: "To disambiguate records in this dataset, first split by administration route, then by drug role, then by patient sex, then by dose form." Nobody told it that. It inferred it from the ambiguity structure.
-
-## Key concepts
-
-**Discriminator Ladder Learning:** The method of greedily discovering which fields best reduce retrieval ambiguity, ordered from coarsest splitter to finest tie-breaker.
-
-**Semantic routing vs flat scan:** Flat scan checks every record. Semantic routing walks a pre-built hierarchy and only examines records at the leaf. The speedup comes from not looking at records that cannot possibly match.
-
-**Domain-agnostic procedure:** The discovery procedure is the same for every dataset. Only the discovered ladder changes. Oncology data routes by therapy. Weather data routes by county. Adverse events route by administration route. The method finds what matters in each world.
-
-## Project structure
-
-```
-semantic_router.py      # The standalone routing engine
-test_router_civic.py    # CIViC oncology test (4.6k records)
-test_router_storm.py    # NOAA Storm Events test (75k records)
-test_router_faers.py    # FDA FAERS test (200k records)
-stream_generator.py     # Synthetic data generator for the research sandbox
-baseline_runner.py      # Original memory-lab benchmark runner
-data_types.py           # Shared dataclasses
-memory_policies.py      # Memory selection policies (SaveAll, Tiered, Stub)
-retrieval.py            # Retrieval functions
-routing.py              # Routing comparison functions
-whisper.py              # Database Whisper field analysis
-chooser.py              # Adaptive route chooser
-meaning_address.py      # Meaning Address v0 prototype
-research_log.md         # Running research notes
-```
-
-## Running the tests
+## Install
 
 ```bash
-# CIViC oncology (downloads data automatically)
-python test_router_civic.py
-
-# NOAA Storm Events (requires storm_events_2023.csv)
-python test_router_storm.py
-
-# FDA FAERS (requires FAERS extract in ASCII/ folder)
-python test_router_faers.py
-
-# Original memory-lab benchmark
-python baseline_runner.py --episodes 100 --distractor-level ambiguity
+pip install database-whisper
 ```
+
+Optional format support:
+```bash
+pip install openpyxl    # for Excel .xlsx
+pip install pyarrow     # for Parquet
+```
+
+## Quick start
+
+```python
+import database_whisper as dw
+
+report = dw.profile("your_data.csv")
+print(report)
+```
+
+Output:
+```
+=== Structural Profile: your_data.csv ===
+Records: 114,000 | Fields: 20
+
+Structural Density: HIGH (112,871x speedup)
+  This dataset has deep categorical structure.
+
+Auto-detected Identity: track_id, track_name, duration_ms
+
+Discriminator Ladder:
+  1. track_genre          98.7% reduction  ####################  dominant
+
+Recommended Indexes:
+  CREATE INDEX idx_track_genre ON tracks (track_genre);
+    -- Standalone index: 99% reduction alone.
+
+Data Quality:
+  Ambiguous neighborhoods: 16,641 / 89,741 (18.5%)
+  Fully resolved by ladder: YES (100% accuracy)
+
+Structural Fingerprint: SINGLE-AXIS
+  One field dominates. Minimal disambiguation depth needed.
+```
+
+## What it does
+
+Given any structured dataset, the algorithm:
+
+1. **Auto-detects** which fields are identity (primary keys) and which are provenance (record IDs to exclude)
+2. **Discovers** a discriminator ladder — the ordered sequence of fields that best resolves ambiguity among records sharing the same identity
+3. **Measures** retrieval speedup vs flat scan and structural density
+4. **Recommends** database indexes based on the discovered structure
+5. **Classifies** the dataset by its structural fingerprint (SINGLE-AXIS, DEEP-PIPELINE, ALREADY-UNIQUE, LOW-STRUCTURE)
+
+## Supported formats
+
+| Format | Extension | Dependencies |
+|--------|-----------|-------------|
+| CSV / TSV | .csv, .tsv | none |
+| JSON (array or nested) | .json | none |
+| NDJSON | .ndjson, .jsonl | none |
+| SQLite | .db, .sqlite | none |
+| SQL dump | .sql | none |
+| Excel | .xlsx | openpyxl |
+| Parquet | .parquet | pyarrow |
+
+## API
+
+```python
+import database_whisper as dw
+
+# Profile a file (auto-detects format)
+report = dw.profile("data.csv")
+report = dw.profile("data.db")
+report = dw.profile("data.xlsx")
+
+# Profile in-memory records
+report = dw.profile_records(records, field_names=["col1", "col2", ...])
+
+# Batch router
+router = dw.Router()
+router.ingest(records, identity_fields=["gene", "disease"])
+result = router.query({"gene": "BRAF", "disease": "Melanoma"}, ask_field="therapy")
+
+# Streaming / incremental
+live = dw.LiveRouter(identity_fields=["gene", "disease"])
+for record in stream:
+    event = live.insert(record)
+
+# Memory with sleep consolidation
+mem = dw.Memory(identity_fields=["gene", "disease"])
+for fact in facts:
+    mem.insert(fact)
+```
+
+## Tested domains
+
+The algorithm has been validated on 9 datasets across different domains. Same code, different data, different structures discovered.
+
+| Domain | Records | Speedup | Accuracy |
+|--------|---------|---------|----------|
+| Oncology (CIViC) | 4,825 | 4,761x | 100% |
+| Pharma safety (FAERS) | 50,000 | 7,462x | 100% |
+| Weather (NOAA Storm) | 50,000 | 50,000x | 100% |
+| Astronomy (NASA Exoplanets) | 6,158 | 6,109x | 100% |
+| Seismology (USGS Earthquakes) | 20,000 | 20,000x | 100% |
+| Particle physics (CERN CMS) | 100,000 | 100,000x | 100% |
+| Music (Spotify) | 114,000 | 112,871x | 100% |
+| Astronomy (LSST PLAsTiCC) | 7,848 | 7,848x | 100% |
+| Cosmology (LSST CosmoDC2) | 50,000 | 3x | 100% |
+
+## Research
+
+- [Paper I: Discriminator Ladder Learning](paper/paper.tex) — the algorithm and 3-domain validation
+- [Paper II: Five Consequences of One Algorithm](paper/paper_v2.tex) — anomaly detection, reasoning traces, compression, federated bridging across 9 domains
 
 ## Requirements
 
-Python 3.10+. No external dependencies. Standard library only.
-
-## Origin
-
-This project started as a memory architecture research lab — studying how systems should decide what to remember and how to retrieve it later. The discriminator ladder and semantic routing ideas emerged from testing memory policies on CIViC oncology data and asking: "what is the cheapest field that separates near-twin records?"
-
-That question turned out to be more general than expected.
+Python 3.9+. Core package has zero external dependencies.
 
 ## License
 
