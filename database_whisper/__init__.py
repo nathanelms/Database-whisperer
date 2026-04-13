@@ -48,6 +48,14 @@ from .text import (
 )
 from .retrieve import MeaningIndex, retrieve
 from .compare import compare, structural_fidelity, ComparisonResult
+from .substitution import (
+    neighborhoods, meaning_coverage, meaning_resolution,
+    collapse_addresses, meaning_audit, classify_features,
+    neighborhood_entropy, mutual_exclusion, absence_patterns,
+    bridging_score, diagnose,
+    Neighborhood, Neighbor, CoverageMap, MeaningAudit, FeatureRoles,
+    Diagnosis, OPERATOR, MEANING, EXPRESSION,
+)
 from ._types import (
     RouteResult,
     LadderRung,
@@ -77,6 +85,27 @@ __all__ = [
     "compare",
     "structural_fidelity",
     "ComparisonResult",
+    # Substitution neighborhoods
+    "neighborhoods",
+    "meaning_coverage",
+    "meaning_resolution",
+    "Neighborhood",
+    "Neighbor",
+    "CoverageMap",
+    "collapse_addresses",
+    "meaning_audit",
+    "classify_features",
+    "neighborhood_entropy",
+    "mutual_exclusion",
+    "absence_patterns",
+    "bridging_score",
+    "diagnose",
+    "MeaningAudit",
+    "FeatureRoles",
+    "Diagnosis",
+    "OPERATOR",
+    "MEANING",
+    "EXPRESSION",
     # Types
     "RouteResult",
     "LadderRung",

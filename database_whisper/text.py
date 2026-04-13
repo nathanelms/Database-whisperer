@@ -619,51 +619,61 @@ def extract_concept_instances(
             if concept_lower not in text_lower:
                 continue
 
-            # Find position
-            pos = -1
+            # Find ALL positions of this concept in the document
+            positions = []
             for i, w in enumerate(words):
                 if _clean(w) == concept_lower:
-                    pos = i
-                    break
-            if pos == -1:
-                # Partial match
+                    positions.append(i)
+
+            # Fallback: partial match (once, for rare morphological cases)
+            if not positions:
                 for i, w in enumerate(words):
                     if concept_lower in _clean(w):
-                        pos = i
+                        positions.append(i)
                         break
-            if pos == -1:
+
+            if not positions:
                 continue
 
-            instance = {
-                "concept": concept_lower,
-                "verb_class": _nearest_verb_class(words, pos),
-                "syntactic_role": _syntactic_role(words, pos),
-                "paired_concept": _paired_concept(words, pos, concept, target_set),
-                "contrast": _detect_contrast(text, concept, target_set),
-                "equation": _detect_equation(text, concept, target_set),
-                "modality": _detect_modality(words, pos),
-                "voice": _detect_voice(text),
-                "negation": _detect_negation(words, pos),
-                "clause_position": _detect_clause_position(words, pos),
-                "transitivity": _detect_transitivity(words, pos),
-            }
+            # Extract one instance per occurrence
+            for occ_idx, pos in enumerate(positions):
 
-            # Copy metadata fields
-            if metadata_fields:
-                for field in metadata_fields:
-                    if field in rec:
-                        instance[field] = str(rec[field])
+                # Local text window for position-aware contrast/equation/voice
+                local_start = max(0, pos - 30)
+                local_end = min(len(words), pos + 30)
+                local_text = " ".join(words[local_start:local_end])
 
-            # Provenance
-            if provenance_field and provenance_field in rec:
-                instance["_provenance"] = str(rec[provenance_field])
+                instance = {
+                    "concept": concept_lower,
+                    "verb_class": _nearest_verb_class(words, pos),
+                    "syntactic_role": _syntactic_role(words, pos),
+                    "paired_concept": _paired_concept(words, pos, concept, target_set),
+                    "contrast": _detect_contrast(local_text, concept, target_set),
+                    "equation": _detect_equation(local_text, concept, target_set),
+                    "modality": _detect_modality(words, pos),
+                    "voice": _detect_voice(local_text),
+                    "negation": _detect_negation(words, pos),
+                    "clause_position": _detect_clause_position(words, pos),
+                    "transitivity": _detect_transitivity(words, pos),
+                    "_occurrence": occ_idx,  # which occurrence in this doc
+                }
 
-            # Text preview for human inspection
-            start = max(0, pos - 8)
-            end = min(len(words), pos + 8)
-            instance["_context"] = " ".join(words[start:end])
+                # Copy metadata fields
+                if metadata_fields:
+                    for field in metadata_fields:
+                        if field in rec:
+                            instance[field] = str(rec[field])
 
-            instances.append(instance)
+                # Provenance
+                if provenance_field and provenance_field in rec:
+                    instance["_provenance"] = str(rec[provenance_field])
+
+                # Text preview for human inspection
+                ctx_start = max(0, pos - 8)
+                ctx_end = min(len(words), pos + 8)
+                instance["_context"] = " ".join(words[ctx_start:ctx_end])
+
+                instances.append(instance)
 
     return instances
 
