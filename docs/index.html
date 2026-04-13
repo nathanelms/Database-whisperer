@@ -202,6 +202,78 @@ footer { text-align: center; padding: 40px 24px; color: #333; font-size: 12px; b
 </div>
 
 <!-- ============================================================ -->
+<!-- RAG RETRIEVAL -->
+<!-- ============================================================ -->
+<div class="section-dark">
+    <div class="section-inner">
+        <h2>Meaning-Addressed Retrieval for RAG</h2>
+        <p class="subtitle">Embedding-based RAG retrieval is sense-blind. It can't tell "positive lab result" from "positive family history." DW addresses can.</p>
+
+        <p style="text-align: center; color: #aaa; font-size: 15px; margin-bottom: 24px;">
+            13-query cross-domain comparison: clinical, biblical, and legal text.
+        </p>
+
+        <table class="comparison-table">
+            <tr>
+                <th>Method</th>
+                <th>Precision</th>
+                <th>F1</th>
+            </tr>
+            <tr>
+                <td>Keyword</td>
+                <td class="num">72.5%</td>
+                <td class="num">82.7%</td>
+            </tr>
+            <tr>
+                <td>Embedding (best k)</td>
+                <td class="num">73.5%</td>
+                <td class="num">82.9%</td>
+            </tr>
+            <tr>
+                <td style="color: #fff; font-weight: 600;">DW Address</td>
+                <td class="win">92.5%</td>
+                <td class="win">91.6%</td>
+            </tr>
+        </table>
+
+        <p style="text-align: center; color: #4caf50; font-weight: 600; font-size: 17px; margin: 20px 0 8px;">
+            +8.8 F1 over embedding retrieval. Zero training. Zero tuning.
+        </p>
+
+        <div class="card" style="margin-top: 24px;">
+            <h3>MeaningIndex API</h3>
+            <p style="margin-bottom: 12px;">Build a sense-aware retrieval index in four lines:</p>
+            <pre style="background: #0a0a15; color: #7c8cf5; padding: 16px; border-radius: 8px; font-size: 13px; overflow-x: auto;">import database_whisper as dw
+
+index = dw.MeaningIndex(records, text_field="text",
+                        concepts=["positive", "discharge", "failure"])
+
+# Retrieve by structural sense
+results = index.query("positive", sense_hint={"paired_concept": "blood"})</pre>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SQI COMPARISON -->
+<!-- ============================================================ -->
+<div class="section">
+    <h2>Compare Datasets: Structural Quality Index</h2>
+    <p class="subtitle">Does your synthetic data preserve meaning? SQI tells you in one number.</p>
+
+    <div class="card">
+        <h3>Detect structural collapse</h3>
+        <p style="margin-bottom: 12px;">
+            Synthetic data generators can reproduce surface statistics while destroying the structural
+            relationships that give words their meaning. SQI measures whether those relationships survive.
+        </p>
+        <pre style="background: #0a0a15; color: #7c8cf5; padding: 16px; border-radius: 8px; font-size: 13px; overflow-x: auto;">result = dw.compare(real_data, synthetic_data, text_field="text",
+                    concepts=["positive", "discharge", "failure"])
+print(result)  # SQI = 0.47 &mdash; structural collapse detected</pre>
+    </div>
+</div>
+
+<!-- ============================================================ -->
 <!-- THREE DOMAINS -->
 <!-- ============================================================ -->
 <div class="section-dark">
