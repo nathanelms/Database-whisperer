@@ -22,6 +22,16 @@ Point it at your data. It tells you what you have.
     mem = dw.Memory(identity_fields=["gene", "disease"])
     for fact in facts:
         mem.insert(fact)
+
+    # RAG retrieval by meaning address
+    index = dw.MeaningIndex(records, text_field="text", concepts=["positive", "negative"])
+    results = index.query("positive", sense_hint={"paired_concept": "blood"})
+    results = index.query_by_context("The blood culture was positive for E. coli")
+
+    # Compare meaning spaces across datasets
+    sqi = dw.compare(ref_records, test_records, text_field="text", concepts=[...])
+    print(sqi)                   # Overall SQI score
+    print(sqi.worst_offenders()) # Concepts with most collapse
 """
 
 __version__ = "0.1.0"
@@ -36,6 +46,8 @@ from .text import (
     meaning_addresses,
     resolution_report,
 )
+from .retrieve import MeaningIndex, retrieve
+from .compare import compare, structural_fidelity, ComparisonResult
 from ._types import (
     RouteResult,
     LadderRung,
@@ -58,6 +70,13 @@ __all__ = [
     "extract_concept_instances",
     "meaning_addresses",
     "resolution_report",
+    # Retrieval
+    "MeaningIndex",
+    "retrieve",
+    # Comparison
+    "compare",
+    "structural_fidelity",
+    "ComparisonResult",
     # Types
     "RouteResult",
     "LadderRung",
